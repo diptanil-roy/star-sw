@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
+class daq_dta;
 #include <TH1F.h>
 #include <TH2F.h>
 #include "TH2.h"
@@ -16,34 +16,34 @@ struct daq_dta;
 class ssdBuilder : public JevpBuilder {
  public:
   int run;
-  
-  ssdBuilder(JevpServer *parent=NULL); 
+
+  ssdBuilder(JevpServer *parent=NULL);
   ~ssdBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
   static void main(int argc, char *argv[]);
-  
+
  private:
   void FindLadderSide(int RDO,int channel,int &ladder,int &side);
-  void FindStripNumber(int &strip);  
+  void FindStripNumber(int &strip);
   void fillSumHistos();
   void UpdateRatio(Float_t &ratio,Int_t Nevent,Int_t value);
   Int_t Mid(UInt_t start, UInt_t end, UInt_t input);
   void globleStyle();
   void setstyle();
-  int evtCt; //all event number 
+  int evtCt; //all event number
   //SSD paraneters
   static const int nSector         = 2;
-  static const int nSide           = 2;  
-  static const int nRdo            = 5; 
-  static const int nLadderPerSide  = 20;   
-  static const int nWaferPerLadder = 16; 
+  static const int nSide           = 2;
+  static const int nRdo            = 5;
+  static const int nLadderPerSide  = 20;
+  static const int nWaferPerLadder = 16;
   static const int nStripPerWafer  = 768;
-  static const int nChipPerWafer   = 6;   
-  static const int nChPerLadder    = 12288;//n channel per ladder 
+  static const int nChipPerWafer   = 6;
+  static const int nChPerLadder    = 12288;//n channel per ladder
   //--book histograms---                     // Size
   TH2I *hRawAdcStrip[nSide][nLadderPerSide]; //	2*20
   TH2I *hZSAdcStrip[nSide][nLadderPerSide];  //	2*20
@@ -51,11 +51,11 @@ class ssdBuilder : public JevpBuilder {
   TH1I *hRmsStrip[nSide][nLadderPerSide];    //	2*20
   TH2I *hRawLadderWafer[nSide];  	     //	2
   TH2I *hZSLadderWafer[nSide];   	     //	2
-  TH2I *hFailedLadderChip[nSide];	     //	2          
- 
+  TH2I *hFailedLadderChip[nSide];	     //	2
+
   TH2I *hErrorRdo;        		     // 1
-  TH2I *hErrorFiber[nRdo];		     // 5                
-  TH1I *hModeCounter;                        // 1 
+  TH2I *hErrorFiber[nRdo];		     // 5
+  TH1I *hModeCounter;                        // 1
   /* TH1I *hErrorRatioRdo[nRdo];//5 */
   /* TH1I *hErrorRatioFiber[nRdo];//5 */
 
@@ -73,7 +73,7 @@ class ssdBuilder : public JevpBuilder {
   int mAdcLength;
   int mPed;
   int mRms;
-  
+
   TTree *mTree;
   Int_t mOutPutTree;
   JevpPlot **plots;
@@ -130,7 +130,7 @@ class ssdBuilder : public JevpBuilder {
 };
 
 
-  //RDO to Ladder 
+  //RDO to Ladder
 const int RDO2LADDER[5][8] = { {1,2,3,4,5,6,7,8},
                            {9,10,11,12,13,14,15,16},
                            {17,18,19,20,1,2,3,4},
@@ -138,7 +138,7 @@ const int RDO2LADDER[5][8] = { {1,2,3,4,5,6,7,8},
                            {13,14,15,16,17,18,19,20}
 };//Ladder cards number in each RDO channel .
 
-  //readout to strip number 
+  //readout to strip number
 const int ReadOutMap[128] ={
   97,96,98,95,99,94,100,93,
   101,92,102,91,103,90,104,89,
@@ -156,4 +156,4 @@ const int ReadOutMap[128] ={
   21,44,22,43,23,42,24,41,
   25,40,26,39,27,38,28,37,
   29,36,30,35,31,34,32,33
-};//silicon strip number ordered by ALICE128 readout order      
+};//silicon strip number ordered by ALICE128 readout order

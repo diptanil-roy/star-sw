@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -18,24 +17,24 @@ struct Def {
   int logz;
   int optstat;
 };
-    
+
 class eemcBuilder : public JevpBuilder {
 public:
   int run;
 
-  eemcBuilder(JevpServer *parent=NULL); 
+  eemcBuilder(JevpServer *parent=NULL);
   ~eemcBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
   char statusfile[255];
-  
+
   int MAPMHits;
   int MAPMHitsCopy;
 

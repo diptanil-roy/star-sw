@@ -15,15 +15,15 @@ typedef unsigned char u_char;
 // interfaces...
 //
 
-#include "DAQ_READER/daqReader.h"
+class daqReader;
 #include "StEvent/StTriggerData.h"
 
 class JevpBuilder : public JevpPlotSet {
  public:
-    JevpBuilder(JevpServer *parent=NULL) : JevpPlotSet(parent) 
+    JevpBuilder(JevpServer *parent=NULL) : JevpPlotSet(parent)
     {
     } ;
-    
+
     StTriggerData *getStTriggerData(daqReader *rdr);
 
 

@@ -4,7 +4,7 @@ Import qw ( env INCLUDE LIB BIN BUILD OBJ);
 $build =~ s/\\/\//g;
 (my $obj_dir = DirPath '.') =~ s/\\/\//g;
 (my $Dir = $obj_dir) =~ s/$build\///g;
-my $ObjDir = "#" . $obj_dir; 
+my $ObjDir = "#" . $obj_dir;
 my $STAR_SYS = $env->{ENV}->{STAR_SYS};
 my $pkg  = "root4star";
 my $pkgN = $pkg . "N";
@@ -36,7 +36,7 @@ if ($FC =~ /pgf77/) {
 	    $LIBS .= " -L" . $PGILIB . " " . $env->{LDALL};
 	    if ( -e "$PGILIB/libpgftnrtl.a"){
 		$LIBS .= " $PGILIB/libpgftnrtl.a";
-	    } 
+	    }
 	    if ( -e "$PGILIB/libpgc.a"){
 		$LIBS .= " $PGILIB/libpgc.a";
 	    }
@@ -74,14 +74,12 @@ if ( $OSTYPE =~ m/^linux/i ) {    # simplify this
 }
 if ($FC =~ /^pgf/) {
   $FC       = $env->{G77}; print "set FC => $FC ==============================\n" if $param::debug;
-  $FFLAGS   = $env->{G77FLAGS}; 
+  $FFLAGS   = $env->{G77FLAGS};
   $FEXTEND  = $env->{G77EXTEND};
 }
-$LIBS .= " -lgeant321 -lgcalor"; 
+$LIBS .= " -lgeant321 -lgcalor";
 $LIBS  .= " " . $env->{CERNLIBS};
-$LIBS  .= $env->{LDALL};
 $LIBS  .= " " . $env->{Packages}->{MYSQL}->{LIBS};
-$LIBS  .= $env->{LDNONE};
 $LIBS  .= " " . $FLIBS . " " . $env->{CLIBS};#   " " . $env->{SYSLIBS} ;
 if ($STAR_SYS =~ /^sun4x_5.$/) {
     if ($LIBPATH) { $LIBPATH .= $main::PATH_SEPARATOR; }
@@ -120,7 +118,7 @@ for my $cpp (@dirs,$Dir) {
 
 $cscanner= find scan::cpp($env2->{_cwd}, $ROOTCINT_CPP);
 my $ROOTCINT_CPPPATH = $cscanner->iflags($env2);
-my $DIR = Cwd::cwd(); 
+my $DIR = Cwd::cwd();
 my $line;
 my @Defs = ();
 my @h_files = script::find_hfiles($Dir);# print "$Dir : h_files = @h_files\n";
@@ -132,7 +130,7 @@ foreach $h (@h_files) {#print "h = $h\n";
     while ($line = <In>) {if ($line =~/ClassDef/ || $line =~ /StCollectionDef/) {push @Defs, $h; goto ENDL;}}
     close(In);
   }
-  else {      
+  else {
     foreach my $Rep (@Repo) {
       my $RepDir = $Rep . "/" . $Dir;
       if (-d $RepDir) {
@@ -148,16 +146,16 @@ foreach $h (@h_files) {#print "h = $h\n";
  ENDL:
 }
 if ($#Defs > -1) {
-  my @CintFiles = 
+  my @CintFiles =
   ( $PKG . "_Cint.cxx", $PKG . "_Cint.h");
   my @defs = ();
   foreach my $def (@Defs) {
     next if $def =~ /LinkDef/;
-    push @defs   , $INCLUDE . "/" . File::Basename::basename($def); 
+    push @defs   , $INCLUDE . "/" . File::Basename::basename($def);
   }
   Command $env2 [@CintFiles], @defs,  qq(RootCint.pl "%>" "%<" "$ROOTCINT_CPPPATH" );
   my $cint =  $CintFiles[0];
-  push @src, $cint; 
+  push @src, $cint;
 }
 my $TG3dir = "TGeant3";
 foreach my $d ($TG3dir){
@@ -167,10 +165,10 @@ foreach my $d ($TG3dir){
     my $ss = $d . "/" . $s;
     my $ss = $d . "/" . $s;# print "FC = $FC and $ss\n";
     if ( $FC !~ /g77/ && $FC !~ /gfortran/ && $ss =~ /\/df\.F$/) {
-	print "$ss ==========skipped\n" if $param::debug; 
+	print "$ss ==========skipped\n" if $param::debug;
 	next;
     }
-    push @src, $ss; 
+    push @src, $ss;
   }
 }
 
@@ -190,5 +188,5 @@ if ($#src > -1) {
   foreach my $f (@list) {
     my $s = $f; $s =~ s/atlsim/starsim/; #  print "$l => $s\n";
     InstallAs $env2 $s, $Starsim . $f;
-  } 
-}  
+  }
+}

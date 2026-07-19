@@ -4,12 +4,11 @@
 #include <TROOT.h>
 #include <TObject.h>
 #include <TLatex.h>
-#include <rtsLog.h>
 
 class JLatex : public TLatex {
   int ndcY;
   int ndcX;
- 
+
   Double_t jx;
   Double_t jy;
 
@@ -19,10 +18,10 @@ class JLatex : public TLatex {
 
   void SetX(Double_t x);
   void SetY(Double_t y);
-  
+
   JLatex();
   JLatex(Double_t x, Double_t y, const char *text, int ndcX=0, int ndcY=1);
-  JLatex(JLatex &l); 
+  JLatex(JLatex &l);
   virtual ~JLatex() {
     //LOG("JEFF", "Deleting a jlatex");
   }
@@ -30,7 +29,7 @@ class JLatex : public TLatex {
   void SetText(const char *text) {
       TLatex::SetText(jx,jy,text);
   }
-  
+
   void SetText(const wchar_t *text) {
       TLatex::SetText(jx, jy, text);
   }

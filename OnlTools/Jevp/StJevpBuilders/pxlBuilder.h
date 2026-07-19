@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH2D.h>
@@ -19,14 +18,14 @@ class pxlBuilder : public JevpBuilder {
 public:
   int run;
 
-  pxlBuilder(JevpServer *parent=NULL); 
+  pxlBuilder(JevpServer *parent=NULL);
   ~pxlBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
@@ -57,7 +56,7 @@ public:
   int count_length_outer[30][NRDO];
 
   map<int,int> *LadderCount;
-  
+
   int sensor_hits[NRDO][NSENSOR];
   int sensor_hit_frequency[NRDO][NSENSOR];
   double avg_run_length[NRDO][NSENSOR];
@@ -88,7 +87,7 @@ public:
       //Tab 1: Global Multiplicity
       TH1 *GlobalHitMultiplicity;
       TH1 *GlobalHitMultiplicitySector[NRDO];
- 
+
       //Tab 2: Hit Multiplicity
       TH1 *HitMultiplicityPerEvent;
       TH1 *HitsPerLadder;

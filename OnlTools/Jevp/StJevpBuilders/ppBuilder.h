@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile.h>
@@ -13,14 +12,14 @@ class ppBuilder : public JevpBuilder {
 public:
   int run;
 
-  ppBuilder(JevpServer *parent=NULL); 
+  ppBuilder(JevpServer *parent=NULL);
   ~ppBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
@@ -35,8 +34,8 @@ public:
     struct {
       TH2* PMT;
       TH2* SVX;
-      TH2* VTIM; 
-      TH2* SVX_NCH; 
+      TH2* VTIM;
+      TH2* SVX_NCH;
 
    };
   } contVIP;
@@ -62,7 +61,7 @@ public:
     };
   } contentsSVX;
 
-  TProfile *hitperbunch ;  // added by KY (2015-3-19) 
+  TProfile *hitperbunch ;  // added by KY (2015-3-19)
 
   //*** End Histogram Declarations...
 

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -17,14 +16,14 @@ class tofBuilder : public JevpBuilder {
 public:
   int run;
 
-  tofBuilder(JevpServer *parent=NULL); 
+  tofBuilder(JevpServer *parent=NULL);
   ~tofBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
@@ -61,12 +60,12 @@ public:
       TH1 *TOF_L1mult_vs_sumL0;
       TH1 *TOF_L1mult;
       TH1 *TOF_sumL0;
-      
+
       // TOFCheckHistogramGroup
       TH1 *TOF_Error1;
       TH1 *TOF_Error2;
       TH1 *TOF_Error3;
-      TH1 *TOF_EventCount;      
+      TH1 *TOF_EventCount;
       TH1 *TOF_Tray_hits1;
       TH1 *TOF_Tray_hits2;
 
@@ -77,11 +76,11 @@ public:
       TH1 *upvpd_hitmap[2];
       TH1 *upvpd_ToT;
       TH1 *upvpd_eastT_vs_westT;
-      
+
       TH2 *hBunchidShiftVSthub;
 
       TH2 *TOF_TF00X[6];
-      
+
     };
   } contents;
   //*** End Histogram Declarations...
@@ -94,7 +93,7 @@ public:
   } extra;
 
 
-  bool NotActiveTray[128];  // Highest TOF tray  number is MTD: 124, leave some room here. 
+  bool NotActiveTray[128];  // Highest TOF tray  number is MTD: 124, leave some room here.
 
   TLatex *TOF_L0_trg_labels[NTRAYS];
   TLatex *TOF_Error1_label;
@@ -104,7 +103,7 @@ public:
   TLatex *TOF_Error2_list;
   TLatex *TOF_Error3_list;
   int nperror1, nperror2, nperror3;
-  
+
   int mReferenceTray;
   int mValidShiftTray[2][4];
   int mValidShift121[2][2];
@@ -113,7 +112,7 @@ public:
   int np;
   JevpPlot *plots[400];
 
-  void ReadTraymaskoutList(); 
+  void ReadTraymaskoutList();
   bool MaskoutTray[128];
 
 

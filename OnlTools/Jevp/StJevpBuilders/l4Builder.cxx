@@ -27,6 +27,8 @@
 #include <DAQ_READER/daq_dta.h>
 #include <DAQ_L3/daq_l3.h>
 #include <DAQ_L4/daq_l4.h>
+#include <DAQ_HLT/daq_hlt.h>
+#include "RTS/include/HLT/HLTFormats.h"
 #include <TStyle.h>
 #include "TVector3.h"
 #include <TLegend.h>
@@ -49,12 +51,12 @@
 using namespace std;
 
 
-// Need this for tracking segmentation faults in the threaded 
+// Need this for tracking segmentation faults in the threaded
 // parts of the event() call.
 //
-// The use of openmp breaks the thread monitoring that 
-// JEVP typically uses 
-// 
+// The use of openmp breaks the thread monitoring that
+// JEVP typically uses
+//
 // The l4ThreadIDs[] are used by the signal handler to figure out what currrent thread faulted
 // The l4ThreadLineNumbers are used by the signal handler to figure out where the crash occured
 int l4ThreadIDs[100];
@@ -138,7 +140,7 @@ void l4Builder::initialize(int argc, char *argv[])
 	eventCounter = 0;
 
 	sprintf(dEdxTheoDir, "/a/l4jevp/client/dedx");
-	LOG(DBG, "Index now %d %s\n",index, dEdxTheoDir);	
+	LOG(DBG, "Index now %d %s\n",index, dEdxTheoDir);
 
 	sprintf(dEdxMeanFiles[0], "%s/dedx_mean_Electron", dEdxTheoDir);
 	sprintf(dEdxMeanFiles[1], "%s/dedx_mean_Pion", dEdxTheoDir);
@@ -200,12 +202,12 @@ void l4Builder::initialize(int argc, char *argv[])
 		HltPlots[i]->gridy = 0;
 		HltPlots[i]->setPalette(1);
 	}
-	for(int i = 0; i < 3; i++) {                                                                     
-		BeamPlots[i] = new JevpPlot();                                                                 
-		BeamPlots[i]->gridx = 0;                                                                       
-		BeamPlots[i]->gridy = 0;                                                                       
-		BeamPlots[i]->setPalette(1);                                                                   
-	}    
+	for(int i = 0; i < 3; i++) {
+		BeamPlots[i] = new JevpPlot();
+		BeamPlots[i]->gridx = 0;
+		BeamPlots[i]->gridy = 0;
+		BeamPlots[i]->setPalette(1);
+	}
 	for(int i = 0; i < nBesGoodPlots; i++) {
 		BesGoodPlots[i] = new JevpPlot();
 		BesGoodPlots[i]->gridx = 0;
@@ -256,15 +258,15 @@ void l4Builder::initialize(int argc, char *argv[])
 	}
 	for(int i = 0; i < 2; i++) {
 		DiPionPlots[i] = new JevpPlot();
-		DiPionPlots[i]->gridx = 0;     
-		DiPionPlots[i]->gridy = 0;     
-		DiPionPlots[i]->setPalette(1); 
+		DiPionPlots[i]->gridx = 0;
+		DiPionPlots[i]->gridy = 0;
+		DiPionPlots[i]->setPalette(1);
 	}
 	for(int i = 0; i < 14; i++) {
 		DiMuonPlots[i] = new JevpPlot();
-		DiMuonPlots[i]->gridx = 0;         
-		DiMuonPlots[i]->gridy = 0;         
-		DiMuonPlots[i]->setPalette(1); 
+		DiMuonPlots[i]->gridx = 0;
+		DiMuonPlots[i]->gridy = 0;
+		DiMuonPlots[i]->setPalette(1);
 	}
 	for(int i = 0; i < 6; i++) {
 		UPCDiElectronPlots[i] = new JevpPlot();
@@ -316,7 +318,7 @@ void l4Builder::initialize(int argc, char *argv[])
 	for(int i=0;i<6;i++) {
 	    addPlot(FixedTargetMonitorPlots[i]);
 	}
-	    
+
 	for(int i = 0; i < 1; i++) {
 		LOG(DBG, "Adding plot %d", i);
 		addPlot(HeavyFragmentPlots[i]);
@@ -641,7 +643,7 @@ void l4Builder::stoprun(daqReader *rdr)
 	//printf("Stopping run #%d\n", runnumber);
 	//cout << "Timing end. " << "\n" << "Cpu time: " << timer.CpuTime()
 	//     << " Real time: " << timer.RealTime() << endl;
-	
+
 	LOG("JEFF", "Stoprun done: run #%d, cpu=%lf, time=%lf", runnumber, timer.CpuTime(), timer.RealTime());
 };
 
@@ -813,7 +815,7 @@ void l4Builder::event(daqReader *rdr)
     }
 
     unsigned int evt_time = rdr->evt_time;
-        
+
     eventCounter++;
 
 
@@ -881,7 +883,7 @@ void l4Builder::event(daqReader *rdr)
     // Check Version
     if(hlt_eve->version != HLT_GL3_VERSION) {
 	LOG(ERR, "ERROR: HLTFormats version doesn't match DAQ file version!");
-	LOG(ERR, "DAQ data version is %X, but HLTFormats version is %X", 
+	LOG(ERR, "DAQ data version is %X, but HLTFormats version is %X",
 	    hlt_eve->version, HLT_GL3_VERSION);
 	return;
     }
@@ -893,14 +895,14 @@ void l4Builder::event(daqReader *rdr)
     omp_set_dynamic(0);
     XX(0);
 
-    
+
     THREADSTART;
 
 #pragma omp parallel sections num_threads(30)
     //#pragma omp parallel sections num_threads(1)
     {
 
-#pragma omp section   
+#pragma omp section
 	{   // section aa
 	    THREADCP(1,0);
 
@@ -985,7 +987,7 @@ void l4Builder::event(daqReader *rdr)
             hVertexXZ->Fill(vertZ, vertX);
             hVertexYZ->Fill(vertZ, vertY);
             hBunchId->Fill(hlt_eve->bunch_id);
-	    
+
 	    THREADCP(1,0);
             if(daqID & upc) {
 		hVertexX_UPC->Fill(vertX);
@@ -1028,10 +1030,10 @@ void l4Builder::event(daqReader *rdr)
 		hEpdeTAC->Fill(hlt_eve->epde);
 		hEpdwTAC->Fill(hlt_eve->epdw);
             }
-	    
+
 	    THREADCP(1,0);
 	    //HLTGood2
-	    
+
 	    if(decision & triggerBitHLTGood2) {
 		if(!HLTGood2Filled) {
 		    HLTGood2Filled = true;
@@ -1048,7 +1050,7 @@ void l4Builder::event(daqReader *rdr)
 	    }
 	    THREADCP(1,0);
 	    //BESMonitor
-	    
+
 	    if(decision & triggerBitBesMonitor) {
 		if(!BESMonitorFilled) {
 		    BESMonitorFilled = true;
@@ -1059,10 +1061,10 @@ void l4Builder::event(daqReader *rdr)
 		hBesMonitorVz->Fill(vertZ);
 		hBesMonitorVertexRZ->Fill(vertZ, vertR);
 	    }
-	    
+
 	    THREADCP(1,0);
 	    //FixedTarget
-	    
+
 	    if(decision & triggerBitFixedTarget) {
 		if(!FixedTargetFilled) {
 		    FixedTargetFilled = true;
@@ -1079,10 +1081,10 @@ void l4Builder::event(daqReader *rdr)
 		hFixedTargetEpdeTAC->Fill(hlt_eve->epde);
 		hFixedTargetEpdwTAC->Fill(hlt_eve->epdw);
 	    }
-	    
+
 	    THREADCP(1,0);
 	    //FixedTargetMonitor
-	    
+
 	    if(decision & triggerBitFixedTargetMonitor) {
 		if(!FixedTargetMonitorFilled) {
 		    FixedTargetMonitorFilled = true;
@@ -1093,7 +1095,7 @@ void l4Builder::event(daqReader *rdr)
 		hFixedTargetMonitorVr->Fill(vertR);
 		hFixedTargetMonitor_VertexZ->Fill(vertZ);
 	    }
-	    
+
 	    THREADCP(1,0);
 	    if(decision & triggerBitDiElectron) {
 		if(!DiElectronFilled) {
@@ -1116,12 +1118,12 @@ void l4Builder::event(daqReader *rdr)
 		EMCFilled = true;
 		addServerTags("L4EMC");
 	    }
-	    
+
 	    if(!PrimaryTracksFilled) {
 		PrimaryTracksFilled = true;
 		addServerTags("L4PrimaryTracks");
 	    }
-	    
+
 	    if(!HeavyFragmentFilled) {
 		HeavyFragmentFilled = true;
 		addServerTags("L4HeavyFragment");
@@ -1133,28 +1135,28 @@ void l4Builder::event(daqReader *rdr)
 		    addServerTags("L4DiElectron2Twr");
 		}
 	    }
-	    
+
 	    if(decision & triggerBitUPC) {
 		if(!UPCFilled) {
 		    UPCFilled = true;
 		    addServerTags("L4UPC");
 		}
 	    }
-	    
+
 	    if(decision & triggerBitDiMuon) {
 		if(!DiMuonFilled) {
 		    DiMuonFilled = true;
 		    addServerTags("L4DiMuon");
 		}
 	    }
-	    
+
 	    if(decision & triggerBitUPCDiElectron) {
 		if(!UPCDiElectronFilled) {
 		    UPCDiElectronFilled = true;
 		    addServerTags("L4UPCDiElectron");
 		}
 	    }
-	    
+
 	    THREADCP(1,0);
 	    // HACK for testing!
 	    // LOG("JEFF", "Fill hbesGoodVxT = %p", hBesGoodVxT);
@@ -1163,7 +1165,7 @@ void l4Builder::event(daqReader *rdr)
 	    //hHLTGood2VzT->Fill(evt_time - first_evt_time, rdr->seq % 150);
 	    THREADEXIT(1);
 	}
-	  
+
 #pragma omp section
 	{    // section bbbb
 	    // fill ToF hits
@@ -1179,11 +1181,11 @@ void l4Builder::event(daqReader *rdr)
 		hTrayID_TrgTime->Fill(trayId, tdc - triggertime);
 		hchannelID->Fill(channel);
 	    }
-	    
+
 	    THREADCP(2,0);
 
 	    // fill pVPD hit
-	    
+
 	    for(u_int i = 0; i < hlt_pvpd->nPvpdHits; i++) {
 		THREADCP(2,i);
 		short trayId      = hlt_pvpd->pvpdHit[i].trayId;
@@ -1207,7 +1209,7 @@ void l4Builder::event(daqReader *rdr)
 	    }
 
 	    pEtofNhitsPerEvent->Fill(evt_time - first_evt_time, hlt_etof->nETofHits);
-              
+
 	    for(u_int i = 0; i < hlt_node->nNodes; i++) {
 		if (hlt_node->node[i].etofBeta <= 0) continue;
 		int globalTrackSN = hlt_node->node[i].globalTrackSN;
@@ -1226,7 +1228,7 @@ void l4Builder::event(daqReader *rdr)
 	{    // section dd
 	    THREADCP(4,0);
 	    // fill EMC
-	    
+
 	    for(u_int i = 0; i < hlt_emc->nEmcTowers; i++) {
 		float energy     = hlt_emc->emcTower[i].energy;
 		float phi   = hlt_emc->emcTower[i].phi;
@@ -1237,7 +1239,7 @@ void l4Builder::event(daqReader *rdr)
 		hTowerDaqId->Fill(daqId);  //run
 		hTowerSoftId->Fill(softId);  //run
 		hTowerEtaPhi->Fill(phi, eta); //run
-	      
+
 		if(daqID & upc) {
 		    hTowerEnergy_UPC->Fill(energy);//run
 		    hTowerDaqId_UPC->Fill(daqId);  //run
@@ -1247,15 +1249,15 @@ void l4Builder::event(daqReader *rdr)
 	    }
 	    THREADEXIT(4);
 	}
-	  
-	  
+
+
 #pragma omp section
 	{    // section eee
 	    // global track
 	    THREADCP(5,0);
             for(u_int i = 0; i < (u_int)hlt_gt->nGlobalTracks; i++) {
 		int nHits = hlt_gt->globalTrack[i].nHits;
-	     	      
+
 		if(hlt_gt->globalTrack[i].flag < 0.) continue;
 		float pt = hlt_gt->globalTrack[i].pt;
 		float pz = hlt_gt->globalTrack[i].tanl * pt;
@@ -1267,9 +1269,9 @@ void l4Builder::event(daqReader *rdr)
 		float eta = 0.0;
 		if(p==pz&&pz>0) eta = 10e10 ;
 		if(p==pz&&pz<0) eta = -10e10 ;
-		eta = 0.5*TMath::Log((p+pz)/(p-pz)); 
-	      
-		hGlob_Eta->Fill(eta);	      
+		eta = 0.5*TMath::Log((p+pz)/(p-pz));
+
+		hGlob_Eta->Fill(eta);
 
 #if 0
 		if(nHits >= 25 && fabs(eta) < 1.) {
@@ -1291,7 +1293,7 @@ void l4Builder::event(daqReader *rdr)
 	    // global track
 	    for(u_int i = 0; i < (u_int)hlt_gt->nGlobalTracks; i++) {
 		int nHits = hlt_gt->globalTrack[i].nHits;
-	     	      
+
 		if(hlt_gt->globalTrack[i].flag < 0.) continue;
 		float pt = hlt_gt->globalTrack[i].pt;
 		float pz = hlt_gt->globalTrack[i].tanl * pt;
@@ -1299,8 +1301,8 @@ void l4Builder::event(daqReader *rdr)
 		float eta = 0.0;
 		if(p==pz&&pz>0) eta = 10e10 ;
 		if(p==pz&&pz<0) eta = -10e10 ;
-		eta = 0.5*TMath::Log((p+pz)/(p-pz)); 
-	      
+		eta = 0.5*TMath::Log((p+pz)/(p-pz));
+
 		if(nHits >= 25 && fabs(eta) < 1.) {
 		    float phi = hlt_gt->globalTrack[i].psi;
 		    if(phi < 0.0) phi += twopi;
@@ -1313,14 +1315,14 @@ void l4Builder::event(daqReader *rdr)
 		if(decision & triggerBitFixedTarget) {
 		    hFixedTarget_Glob_Eta->Fill(eta);
 		}
-	        
+
 		if(decision & triggerBitFixedTargetMonitor) {
 		    hFixedTargetMonitor_Glob_Eta->Fill(eta);
 		}
 	    }
 	    THREADEXIT(6);
 	}
-    
+
 #pragma omp section
 	{  // section gg
 	    THREADCP(7,0);
@@ -1330,21 +1332,21 @@ void l4Builder::event(daqReader *rdr)
 
 		hnhits->Fill(nHits);
 		hnDedx->Fill(ndedx);
-	   
+
 		if(daqID & upc) {
 		    hnhits_UPC->Fill(nHits);
 		    hnDedx_UPC->Fill(ndedx);
 		}
-	      
+
 		if(hlt_gt->globalTrack[i].flag < 0.) continue;
-	      
+
 		if(nHits >= 20 && ndedx >= 15) {
 		    float pt = hlt_gt->globalTrack[i].pt;
 		    float pz = hlt_gt->globalTrack[i].tanl * pt;
 		    int  q  = hlt_gt->globalTrack[i].q;
 		    float p = TMath::Sqrt(pt*pt+pz*pz);
 		    float dedx = hlt_gt->globalTrack[i].dedx;
-	
+
 		    hGlob_dEdx->Fill(p * q, dedx);
 		    if(daqID & upc) {
 			hGlob_dEdx_UPC->Fill(p * q, dedx);
@@ -1387,7 +1389,7 @@ void l4Builder::event(daqReader *rdr)
 	    for(int j = 0; j < hlt_node->nNodes; j++) {
 		hDcaXy->Fill(Array_dcaXy[j]);
 		hDcaZ->Fill(Array_dcaZ[j]);
-	      
+
 		if(daqID & upc) {
 		    hDcaXy_UPC->Fill(Array_dcaXy[j]);
 		    hDcaZ_UPC->Fill(Array_dcaZ[j]);
@@ -1395,13 +1397,13 @@ void l4Builder::event(daqReader *rdr)
 	    }
 	    THREADEXIT(8);
 	}
-	  
+
 #pragma omp section
 	{   // section ii
 	    THREADCP(9,0);
 	    for(u_int i = 0; i < (u_int)hlt_node->nNodes; i++) {
 		int     tofHitSN       = hlt_node->node[i].tofHitSN;
-		if(tofHitSN >= 0) 
+		if(tofHitSN >= 0)
 		    {
 			int     globalTrackSN  = hlt_node->node[i].globalTrackSN;
 			//int     primaryTrackSN = hlt_node->node[i].primaryTrackSN;
@@ -1437,14 +1439,14 @@ void l4Builder::event(daqReader *rdr)
 			double  theSign        = (cross >= 0) ? 1. : -1.;
 			double  dcaXy          = theSign * sqrt(pow(dcaX, 2) + pow(dcaY, 2));
 			double  dcaZ           = GTrack.z0 - hlt_eve->lmVertexZ;
-		  
+
 			hDcaXy_EMCMatch->Fill(dcaXy);
 			hDcaZ_EMCMatch->Fill(dcaZ);
 		    }
 	    }
 	    THREADEXIT(10);
 	}
-	  
+
 #pragma omp section
 	{    // section kk
 	    THREADCP(11,0);
@@ -1462,7 +1464,7 @@ void l4Builder::event(daqReader *rdr)
 		if(daqID & upc) count_UPC++;
 		hlt_track PTrack = hlt_pt->primaryTrack[primaryTrackSN];
 		if(PTrack.flag < 0.) continue;
-	     	      
+
 		THREADCP(11,i);
 		int nHits = PTrack.nHits;
 		int ndedx = PTrack.ndedx;
@@ -1470,8 +1472,8 @@ void l4Builder::event(daqReader *rdr)
 		float pt = PTrack.pt;
 		float px = cos(PTrack.psi) * PTrack.pt;
 		float py = sin(PTrack.psi) * PTrack.pt;
-		float pz = PTrack.tanl * PTrack.pt;	      
-	      
+		float pz = PTrack.tanl * PTrack.pt;
+
 		THREADCP(11,i);
 		TVector3 mom(px, py, pz);
 		float eta = mom.PseudoRapidity();
@@ -1499,7 +1501,7 @@ void l4Builder::event(daqReader *rdr)
 		if(decision & triggerBitFixedTargetMonitor) {
 		    hFixedTargetMonitor_Prim_Eta->Fill(eta);
 		}
-	      
+
 		THREADCP(11,i);
 		if(nHits >= 20 && ndedx >= 15) {
 		    hPrim_dEdx->Fill(p * q, dedx);
@@ -1511,11 +1513,11 @@ void l4Builder::event(daqReader *rdr)
 		    }
 		}
 	    }
-	    
+
 	    primaryTracks = count;
 	    hglobalMult->Fill(hlt_gt->nGlobalTracks);
 	    hprimaryMult->Fill(count);
-	    
+
 	    if(daqID & upc) {
 		primaryTracks_UPC = count_UPC;
 		hglobalMult_UPC->Fill(hlt_gt->nGlobalTracks);
@@ -1534,20 +1536,20 @@ void l4Builder::event(daqReader *rdr)
 	{   // section lll
 	    // fill nodes
 	    THREADCP(12,0);
-	    
+
 	    for(u_int i = 0; i < u_int (hlt_node->nNodes*(1.0/3.0)); i++) {
 		int  tofHitSN       = hlt_node->node[i].tofHitSN;
-	      
+
 		if(tofHitSN >= 0) {
-		    int  primaryTrackSN = hlt_node->node[i].primaryTrackSN;	
+		    int  primaryTrackSN = hlt_node->node[i].primaryTrackSN;
 
 		    if(primaryTrackSN >= 0) {
 			int  projChannel = hlt_node->node[i].projChannel;
 			int  Proj_trayId = hlt_tof->tofHit[tofHitSN].trayId;
-	
+
 			for(u_int j = 0; j < hlt_tof->nTofHits; j++) {
 			    int fire_trayId = hlt_tof->tofHit[j].trayId;
-	
+
 			    if(Proj_trayId == fire_trayId) {
 				hMatchId_fiberId->Fill(projChannel, hlt_tof->tofHit[j].channel);
 			    }
@@ -1557,7 +1559,7 @@ void l4Builder::event(daqReader *rdr)
 	    }
 	    THREADEXIT(12);
 	}
-	  
+
 
 #pragma omp section
 	{   // section mm
@@ -1565,14 +1567,14 @@ void l4Builder::event(daqReader *rdr)
 
 	    for(u_int i = u_int (hlt_node->nNodes*(1.0/3.0)); i < u_int (hlt_node->nNodes*(2.0/3.0)); i++) {
 		int  tofHitSN       = hlt_node->node[i].tofHitSN;
-	      	      
+
 		if(tofHitSN >= 0) {
-		    int  primaryTrackSN = hlt_node->node[i].primaryTrackSN;	
-	
+		    int  primaryTrackSN = hlt_node->node[i].primaryTrackSN;
+
 		    if(primaryTrackSN >= 0) {
 			int  projChannel = hlt_node->node[i].projChannel;
 			int Proj_trayId = hlt_tof->tofHit[tofHitSN].trayId;
-		  
+
 			for(u_int j = 0; j < hlt_tof->nTofHits; j++) {
 			    int fire_trayId = hlt_tof->tofHit[j].trayId;
 			    if(Proj_trayId == fire_trayId) {
@@ -1591,14 +1593,14 @@ void l4Builder::event(daqReader *rdr)
 	    THREADCP(14,0);
 	    for(u_int i = u_int (hlt_node->nNodes*(2.0/3.0)); i < hlt_node->nNodes; i++) {
 		int  tofHitSN       = hlt_node->node[i].tofHitSN;
-	      
+
 		if(tofHitSN >= 0) {
-		    int  primaryTrackSN = hlt_node->node[i].primaryTrackSN;	
-	
+		    int  primaryTrackSN = hlt_node->node[i].primaryTrackSN;
+
 		    if(primaryTrackSN >= 0) {
 			int  projChannel = hlt_node->node[i].projChannel;
 			int Proj_trayId = hlt_tof->tofHit[tofHitSN].trayId;
-		  
+
 			for(u_int j = 0; j < hlt_tof->nTofHits; j++) {
 			    int fire_trayId = hlt_tof->tofHit[j].trayId;
 			    if(Proj_trayId == fire_trayId) {
@@ -1610,7 +1612,7 @@ void l4Builder::event(daqReader *rdr)
 	    }
 	    THREADEXIT(14);
 	}
-	  
+
 
 #pragma omp section
 	{   // section oo
@@ -1625,7 +1627,7 @@ void l4Builder::event(daqReader *rdr)
 		float   pt         = NTrack.pt;
 		float   pz         = NTrack.tanl * NTrack.pt;
 		float   p          = sqrt(pt * pt + pz * pz);
-	      
+
 		if(tofHitSN >= 0) {
 		    float localY = hlt_node->node[i].localY;
 		    float localZ = hlt_node->node[i].localZ;
@@ -1647,20 +1649,20 @@ void l4Builder::event(daqReader *rdr)
 			if(daqID & upc) hzEdge_UPC->Fill(emcMatchZEdge);
 		    }
 		}
-	      
+
 	    }
 	    THREADEXIT(15);
 	}
 
-	  
+
 #pragma omp section
 	{   // section pp
 	    THREADCP(16,0);
 
 	    // heavy fragment
-	   
+
 	    for(u_int i = 0; i < hlt_hf->nHeavyFragments; i++) {
-	      
+
 		int heavyFrag_NodeSN = hlt_hf->heavyFragmentSN[i];
 		int heavyFragmentglobSN  = hlt_node->node[heavyFrag_NodeSN].globalTrackSN;
 		hlt_track HFtrack = hlt_gt->globalTrack[heavyFragmentglobSN];
@@ -1672,7 +1674,7 @@ void l4Builder::event(daqReader *rdr)
 		float hfpz    = HFtrack.pt * HFtrack.tanl;
 		float hfp     = sqrt(hfpx * hfpx + hfpy * hfpy + hfpz * hfpz);
 		float hfdedx  =  HFtrack.dedx;
-	  
+
 		if(nHits >= 20 && ndedx >= 15) {
 		    hHFM_dEdx->Fill(hfp * q , hfdedx);
 		    if(daqID & upc) hHFM_dEdx_UPC->Fill(hfp * q , hfdedx);
@@ -1688,27 +1690,27 @@ void l4Builder::event(daqReader *rdr)
 	    THREADCP(17,0);
 
 	    if(decision & triggerBitUPC) {
-	      
+
 		for(u_int i = 0; i < hlt_dipi->nRhos; i++) {
 		    int Daughter1NodeSN = hlt_dipi->PionPair[i].dau1NodeSN;
 		    int Daughter2NodeSN = hlt_dipi->PionPair[i].dau2NodeSN;
 		    int Daughter1TrackSN = hlt_node->node[Daughter1NodeSN].primaryTrackSN;
 		    int Daughter2TrackSN = hlt_node->node[Daughter2NodeSN].primaryTrackSN;
-	      
+
 		    if(Daughter1TrackSN < 0) continue;
 		    hlt_track Daughter1Track =  hlt_pt->primaryTrack[Daughter1TrackSN];
 		    float Daughter1q     = Daughter1Track.q;
 		    if(Daughter2TrackSN < 0.) continue;
 		    hlt_track Daughter2Track =  hlt_pt->primaryTrack[Daughter2TrackSN];
 		    float Daughter2q     =  Daughter2Track.q;
-		
+
 		    float m = hlt_dipi->PionPair[i].invariantMass;
 		    float diffphi = hlt_dipi->PionPair[i].deltphi;
 		    hDiPionDeltphi->Fill(diffphi);
-		
+
 		    if(Daughter1q * Daughter2q < 0.) hDiPionInvMassFullRange->Fill(m);
 		    else hDiPionInvMassFullRangeBG->Fill(m);
-		
+
 		}
 	    }
 	    THREADEXIT(17);
@@ -1729,7 +1731,7 @@ void l4Builder::event(daqReader *rdr)
 			int pTrackSN  = hlt_node->node[inode].primaryTrackSN;
 			global2prim[gTrackSN] = pTrackSN;
 		    }
-	      
+
 		int nMtdHit = hlt_mtd->nMtdHits;
 		vector<int> pMuTrkId;
 		pMuTrkId.clear();
@@ -1740,9 +1742,9 @@ void l4Builder::event(daqReader *rdr)
 			int channel  = (int)hlt_mtd->mtdHit[i].channel;
 			int gchannel = (module-1)*12+channel;
 			int gmodule  = (backleg-1)*5+module;
-		  
+
 			hMtdHitMap->Fill(backleg,gchannel);
-		  
+
 			int trkid   = (int)hlt_mtd->mtdHit[i].hlt_trackId;
 			if(trkid<0) continue;
 			double deltaz = hlt_mtd->mtdHit[i].delta_z;
@@ -1754,7 +1756,7 @@ void l4Builder::event(daqReader *rdr)
 			hMtdDeltaY->Fill(deltay);
 			if(fabs(deltaz)>20)continue;
 			if(fabs(deltay)>20)continue;
-		  
+
 			int pTrkId  = global2prim[trkid];
 			if(pTrkId<0) continue;
 			hlt_track pTrack = hlt_pt->primaryTrack[pTrkId];
@@ -1765,7 +1767,7 @@ void l4Builder::event(daqReader *rdr)
 			pMuTrkId.push_back(pTrkId);
 		    }
 
-	  
+
 		// J/psi analysis
 		const float muMass = 0.10566;
 		unsigned int npmuon = pMuTrkId.size();
@@ -1781,16 +1783,16 @@ void l4Builder::event(daqReader *rdr)
 			float ipz = itanl * ipt;
 			TLorentzVector imuon;
 			imuon.SetXYZM(ipx,ipy,ipz,muMass);
-		  
+
 			for(UInt_t j=i+1; j<npmuon; j++)
 			    {
 				hlt_track jpTrack = hlt_pt->primaryTrack[pMuTrkId[j]];
 				char jq = jpTrack.q;
 				float jpt = jpTrack.pt;
-		      
+
 				double pt_lead = (ipt>jpt) ? ipt : jpt;
 				if(pt_lead<1.5) continue;
-		      
+
 				float jpsi = jpTrack.psi;
 				float jtanl = jpTrack.tanl;
 				float jpx = TMath::Cos(jpsi)*jpt;
@@ -1798,7 +1800,7 @@ void l4Builder::event(daqReader *rdr)
 				float jpz = jtanl * jpt;
 				TLorentzVector jmuon;
 				jmuon.SetXYZM(jpx,jpy,jpz,muMass);
-		      
+
 				TLorentzVector muPair = imuon + jmuon;
 				if(iq*jq<0) {
 				    hInvMassUS->Fill(muPair.M());
@@ -1812,23 +1814,23 @@ void l4Builder::event(daqReader *rdr)
 				}
 			    }//j
 		    }//i
-	      
 
-	  
+
+
 		double jpsi_lowm1=2.7, jpsi_highm1=3.5;
 		int lowbin = hMTDDiMuonJpsiMassUS->FindBin(jpsi_lowm1);
 		int highbin = hMTDDiMuonJpsiMassUS->FindBin(jpsi_highm1);
-	      
+
 		US12=hMTDDiMuonJpsiMassUS->Integral(lowbin, highbin,"");
 		tlx12_us->SetText(0.15, 0.65, Form("#US = %.0f", double(US12)));
 		LS12=hMTDDiMuonJpsiMassLS->Integral(lowbin, highbin,"");
 		tlx12_ls->SetText(0.15, 0.6, Form("#LS = %.0f", double(LS12)));
 		tlxmass12->SetText(0.6, 0.7, Form("%.2f #leq m_{ee} #leq %.2f", double(jpsi_lowm1), double(jpsi_highm1)) );
-	      
+
 		double upsilon_lowm1=9, upsilon_highm1=11;
 		lowbin = hMTDDiMuonJpsiMassUS->FindBin(upsilon_lowm1);
 		highbin = hMTDDiMuonJpsiMassUS->FindBin(upsilon_highm1);
-	      
+
 		US13=hMTDDiMuonUpsilonMassUS->Integral(lowbin, highbin,"");
 		tlx13_us->SetText(0.15, 0.65, Form("#US = %.0f", double(US13)));
 		LS13=hMTDDiMuonUpsilonMassLS->Integral(lowbin, highbin,"");
@@ -1850,11 +1852,11 @@ void l4Builder::event(daqReader *rdr)
 		    tmp_global2prim[tmp_gTrackSN] = tmp_pTrackSN;
 		}
 	    //-----------------------------------------------------------------
-	    if(decision & triggerBitMTDQuarkonium) 
+	    if(decision & triggerBitMTDQuarkonium)
 		{   //need the triggerBitMTDQuarkonium
 		    int nMTDQmPairs = hlt_mtdqm->nMTDQuarkonium;
 		    for(int i=0; i<nMTDQmPairs; i++){
-		  
+
 			int mgtrkid1 = hlt_mtdqm->MTDQuarkonium[i].muonTrackId1;
 			int mgtrkid2 = hlt_mtdqm->MTDQuarkonium[i].muonTrackId2;
 
@@ -1893,7 +1895,7 @@ void l4Builder::event(daqReader *rdr)
 			double mudz2 = hlt_mtd->mtdHit[muhit2].delta_z;
 			if(fabs(mudz1)>20||fabs(mudz2)>20)continue;
 
-			const double mumass = 0.10566; 
+			const double mumass = 0.10566;
 
 			double mupx1 = mupt1 * cos(muPtrk1.psi);
 			double mupy1 = mupt1 * sin(muPtrk1.psi);
@@ -1906,7 +1908,7 @@ void l4Builder::event(daqReader *rdr)
 			TVector3 muPMom1(mupx1, mupy1, mupz1);
 
 			TVector3 muPMom2(mupx2, mupy2, mupz2);
-		
+
 			TLorentzVector Muon1(0,0,0,0);
 			Muon1.SetXYZM(mupx1, mupy1, mupz1, mumass);
 			TLorentzVector Muon2(0,0,0,0);
@@ -1915,7 +1917,7 @@ void l4Builder::event(daqReader *rdr)
 			TLorentzVector QmPair = Muon1 + Muon2;
 			double qmMass=QmPair.M();
 			double qmPt=QmPair.Pt();
-		
+
 			if(muPtrk1.q*muPtrk2.q<0){
 
 			    hMTDQmInvMassUS->Fill(qmMass);
@@ -1930,35 +1932,35 @@ void l4Builder::event(daqReader *rdr)
 			    hMTDQmJpsiMass_ptcut0_LS->Fill(qmMass);
 			    if(qmPt>2.)hMTDQmJpsiMass_ptcut2_LS->Fill(qmMass);
 			    if(qmPt>4.)hMTDQmJpsiMass_ptcut4_LS->Fill(qmMass);
-		    
+
 			    hMTDQmUpsilonMassLS->Fill(qmMass);
 			}
-		
+
 		    }
 		}
 	    double lowm1=2.7, highm1=3.5;
 	    int lowbin = hMTDQmJpsiMass_ptcut0_US->FindBin(lowm1);
 	    int highbin = hMTDQmJpsiMass_ptcut0_US->FindBin(highm1);
-	    
+
 	    US8=hMTDQmJpsiMass_ptcut0_US->Integral(lowbin, highbin,"");
 	    tlx8_us->SetText(0.15, 0.65, Form("#US = %.0f", double(US8)));
 	    LS8=hMTDQmJpsiMass_ptcut0_LS->Integral(lowbin, highbin,"");
 	    tlx8_ls->SetText(0.15, 0.6, Form("#LS = %.0f", double(LS8)));
-	    
+
 	    US9=hMTDQmJpsiMass_ptcut2_US->Integral(lowbin, highbin,"");
 	    tlx9_us->SetText(0.15, 0.65, Form("#US = %.0f", double(US9)));
 	    LS9=hMTDQmJpsiMass_ptcut2_LS->Integral(lowbin, highbin,"");
 	    tlx9_ls->SetText(0.15, 0.6, Form("#LS = %.0f", double(LS9)));
-	    
+
 	    US10=hMTDQmJpsiMass_ptcut4_US->Integral(lowbin, highbin,"");
 	    tlx10_us->SetText(0.15, 0.65, Form("#US = %.0f", double(US10)));
 	    LS10=hMTDQmJpsiMass_ptcut4_LS->Integral(lowbin, highbin,"");
 	    tlx10_ls->SetText(0.15, 0.6, Form("#LS = %.0f", double(LS10)));
-	    
+
 	    double lowm2=9.0, highm2=11.;
 	    int lowbin2 = hMTDQmJpsiMass_ptcut0_US->FindBin(lowm2);
 	    int highbin2 = hMTDQmJpsiMass_ptcut0_US->FindBin(highm2);
-	    
+
 	    US11=hMTDQmUpsilonMassUS->Integral(lowbin2, highbin2,"");
 	    tlx11_us->SetText(0.15, 0.65, Form("#US = %.0f", double(US11)));
 	    LS11=hMTDQmUpsilonMassLS->Integral(lowbin, highbin,"");
@@ -1971,7 +1973,7 @@ void l4Builder::event(daqReader *rdr)
 	    // upc di-e
 	    THREADCP(20,0);
 	    if(decision & triggerBitUPCDiElectron) {
-	      
+
 		for(u_int i = 0; i < hlt_upcdiep->nEPairs; i++) {
 		    int Daughter1NodeSN = hlt_upcdiep->ePair[i].dau1NodeSN;
 		    int Daughter2NodeSN = hlt_upcdiep->ePair[i].dau2NodeSN;
@@ -1979,31 +1981,31 @@ void l4Builder::event(daqReader *rdr)
 		    int Daughter2TrackSN = hlt_node->node[Daughter2NodeSN].primaryTrackSN;
 		    int Daughter1EmcSN = hlt_node->node[Daughter1NodeSN].emcTowerSN;
 		    int Daughter2EmcSN = hlt_node->node[Daughter2NodeSN].emcTowerSN;
-		
+
 		    if(Daughter1TrackSN < 0) continue;
 		    hlt_track Daughter1Track =  hlt_pt->primaryTrack[Daughter1TrackSN];
-		
+
 		    float Daughter1_EP_ratio = -999.;
-		
+
 		    float Daughter1q     = Daughter1Track.q;
 		    float Daughter1px    = Daughter1Track.pt * cos(Daughter1Track.psi);
 		    float Daughter1py    = Daughter1Track.pt * sin(Daughter1Track.psi);
 		    float Daughter1pz    = Daughter1Track.pt * Daughter1Track.tanl;
 		    float Daughter1dedx  = Daughter1Track.dedx;
-			
+
 		    TVector3 Daughter1(Daughter1px, Daughter1py, Daughter1pz);
 		    float Daughter1p = Daughter1.Mag();
-		
+
 		    float Daughter1phi = Daughter1.Phi();
 		    if(Daughter1phi < 0.) Daughter1phi += twopi;
-		
+
 		    hdEdx_P1_UPC->Fill(Daughter1p , Daughter1dedx);
 		    if(Daughter1EmcSN >= 0) {
 			float Daughter1TowerEnergy = hlt_emc->emcTower[Daughter1EmcSN].energy;
 			Daughter1_EP_ratio = Daughter1TowerEnergy / Daughter1p;
 			hDaughter1P_TowerEnergy_UPC->Fill(Daughter1_EP_ratio);
 		    }
-		
+
 		    if(Daughter2TrackSN < 0.) continue;
 		    hlt_track Daughter2Track =  hlt_pt->primaryTrack[Daughter2TrackSN];
 		    float Daughter2_EP_ratio = -999.;
@@ -2013,7 +2015,7 @@ void l4Builder::event(daqReader *rdr)
 		    float Daughter2py    =  Daughter2Track.pt * sin(Daughter2Track.psi);
 		    float Daughter2pz    =  Daughter2Track.pt * Daughter2Track.tanl;
 		    float Daughter2dedx  =  Daughter2Track.dedx;
-		
+
 		    TVector3 Daughter2(Daughter2px, Daughter2py, Daughter2pz);
 		    float Daughter2p = Daughter2.Mag();
 
@@ -2025,14 +2027,14 @@ void l4Builder::event(daqReader *rdr)
 			Daughter2_EP_ratio = Daughter2TowerEnergy / Daughter2p;
 			hDaughter2P_TowerEnergy_UPC->Fill(Daughter2_EP_ratio);
 		    }
-		
+
 		    // j/psi
-	
+
 		    float px = cos(hlt_upcdiep->ePair[i].psi) * hlt_upcdiep->ePair[i].pt;
 		    float py = sin(hlt_upcdiep->ePair[i].psi) * hlt_upcdiep->ePair[i].pt;
 		    float pz = hlt_upcdiep->ePair[i].tanl * hlt_upcdiep->ePair[i].pt;
 		    float m = hlt_upcdiep->ePair[i].invariantMass;
-		
+
 		    if(Daughter1q * Daughter2q < 0.) {
 			hDiElectronInvMassFullRange_UPC->Fill(m);
 		    } else {
@@ -2042,13 +2044,13 @@ void l4Builder::event(daqReader *rdr)
 		    jpsi.SetXYZM(px, py, pz, m);
 		    float rapidity = jpsi.Rapidity();
 		    hDiLeptonRapidity_UPC->Fill(rapidity);
-		
+
 		}
 	    }
 	    THREADEXIT(20);
 	}
 	//******************************************************
-	   
+
 
 #pragma omp section
 	{   // section uuu
@@ -2064,7 +2066,7 @@ void l4Builder::event(daqReader *rdr)
 		    int Daughter2EmcSN = hlt_node->node[Daughter2NodeSN].emcTowerSN;
 		    int Daughter1TofSN = hlt_node->node[Daughter1NodeSN].tofHitSN;
 		    int Daughter2TofSN = hlt_node->node[Daughter2NodeSN].tofHitSN;
-	      
+
 		    if(Daughter1TrackSN < 0) continue;
 		    hlt_track Daughter1Track =  hlt_pt->primaryTrack[Daughter1TrackSN];
 
@@ -2072,20 +2074,20 @@ void l4Builder::event(daqReader *rdr)
 		    float Daughter1phidiff = -999.;
 		    float Daughter1_PE_ratio = -999.;
 		    float Daughter1_EP_ratio = -999.;
-	      
+
 		    float Daughter1q     = Daughter1Track.q;
 		    float Daughter1px    = Daughter1Track.pt * cos(Daughter1Track.psi);
 		    float Daughter1py    = Daughter1Track.pt * sin(Daughter1Track.psi);
 		    float Daughter1pz    = Daughter1Track.pt * Daughter1Track.tanl;
 		    float Daughter1dedx  = Daughter1Track.dedx;
 		    int Daughter1ndedx = Daughter1Track.ndedx;
-	      
+
 		    TVector3 Daughter1(Daughter1px, Daughter1py, Daughter1pz);
 		    float Daughter1p = Daughter1.Mag();
-	      
+
 		    double dedx1E = getDedx(Daughter1p, e);
 		    float nSigma1 = log(Daughter1dedx / dedx1E) / A * sqrt(Daughter1ndedx);
-	      
+
 		    float Daughter1phi = Daughter1.Phi();
 		    if(Daughter1phi < 0.) Daughter1phi += twopi;
 		    hdEdx_P1_Twr->Fill(Daughter1p , Daughter1dedx);
@@ -2106,23 +2108,23 @@ void l4Builder::event(daqReader *rdr)
 		    float Daughter2beta = -999.;
 		    float Daughter2_PE_ratio = -999.;
 		    float Daughter2_EP_ratio = -999.;
-	      
+
 		    float Daughter2q     =  Daughter2Track.q;
 		    float Daughter2px    =  Daughter2Track.pt * cos(Daughter2Track.psi);
 		    float Daughter2py    =  Daughter2Track.pt * sin(Daughter2Track.psi);
 		    float Daughter2pz    =  Daughter2Track.pt * Daughter2Track.tanl;
 		    float Daughter2dedx  =  Daughter2Track.dedx;
 		    int Daughter2ndedx = Daughter2Track.ndedx;
-	      
+
 		    TVector3 Daughter2(Daughter2px, Daughter2py, Daughter2pz);
 		    float Daughter2p = Daughter2.Mag();
-	      
+
 		    double dedx2E = getDedx(Daughter2p, e);
 		    float nSigma2 = log(Daughter2dedx / dedx2E) / A * sqrt(Daughter2ndedx);
 
 		    float Daughter2phi = Daughter2.Phi();
 		    if(Daughter2phi < 0.0) Daughter2phi += twopi;
-	      
+
 		    hdEdx_P2_Twr->Fill(Daughter2p , Daughter2dedx);
 		    if(Daughter2EmcSN >= 0) {
 			float Daughter2TowerEnergy = hlt_emc->emcTower[Daughter2EmcSN].energy;
@@ -2134,20 +2136,20 @@ void l4Builder::event(daqReader *rdr)
 		    if(Daughter2TofSN >= 0.) {
 			Daughter2beta = hlt_node->node[Daughter2NodeSN].beta;
 		    }
-	      
+
 		    // j/psi
-	
+
 		    float px = cos(hlt_Twrdiep->ePair[i].psi) * hlt_Twrdiep->ePair[i].pt;
 		    float py = sin(hlt_Twrdiep->ePair[i].psi) * hlt_Twrdiep->ePair[i].pt;
 		    float pz = hlt_Twrdiep->ePair[i].tanl * hlt_Twrdiep->ePair[i].pt;
 		    float m = hlt_Twrdiep->ePair[i].invariantMass;
-	      
+
 		    if(Daughter1q * Daughter2q < 0.) {
 			hDiElectronInvMassFullRange_Twr->Fill(m);
 		    } else {
 			hDiElectronInvMassFullRangeBG_Twr->Fill(m);
 		    }
-	      
+
 		    if(nSigma1 > -0.9 && nSigma2 > -0.9 &&
 		       Daughter1p > 2.3 && Daughter2p > 1.5 &&
 		       Daughter1ndedx > 16 && Daughter2ndedx > 16 &&
@@ -2167,7 +2169,7 @@ void l4Builder::event(daqReader *rdr)
 				if(fabs(1 / Daughter1beta - 1) < 0.04 && fabs(1 / Daughter2beta - 1) < 0.04)
 				    {
 					hDiElectronInvMassCutBG_Twr->Fill(m);
-				    } 
+				    }
 			    }
 			if(Daughter1TofSN >= 0.)
 			    {
@@ -2178,12 +2180,12 @@ void l4Builder::event(daqReader *rdr)
 				hDaughter2TpxEmcInverseBeta_Twr->Fill(1 / Daughter2beta);
 			    }
 		    }
-		
+
 		    TLorentzVector jpsi(0, 0, 0, 0);
 		    jpsi.SetXYZM(px, py, pz, m);
 		    float rapidity = jpsi.Rapidity();
 		    hDiLeptonRapidity_Twr->Fill(rapidity);
-		
+
 		}//nEPair
 	    }
 	    THREADEXIT(21);
@@ -2193,7 +2195,7 @@ void l4Builder::event(daqReader *rdr)
 	    // di-e
 	    THREADCP(22,0);
 	    if(decision & triggerBitDiElectron) {
-	     
+
 
 		for(u_int i = 0; i < hlt_diep->nEPairs; i++) {
 		    int Daughter1NodeSN = hlt_diep->ePair[i].dau1NodeSN;
@@ -2204,7 +2206,7 @@ void l4Builder::event(daqReader *rdr)
 		    int Daughter2EmcSN = hlt_node->node[Daughter2NodeSN].emcTowerSN;
 		    int Daughter1TofSN = hlt_node->node[Daughter1NodeSN].tofHitSN;
 		    int Daughter2TofSN = hlt_node->node[Daughter2NodeSN].tofHitSN;
-	
+
 		    if(Daughter1TrackSN < 0) continue;
 		    hlt_track Daughter1Track =  hlt_pt->primaryTrack[Daughter1TrackSN];
 
@@ -2212,20 +2214,20 @@ void l4Builder::event(daqReader *rdr)
 		    float Daughter1phidiff = -999.;
 		    float Daughter1_PE_ratio = -999.;
 		    float Daughter1_EP_ratio = -999.;
-	      
+
 		    float Daughter1q     = Daughter1Track.q;
 		    float Daughter1px    = Daughter1Track.pt * cos(Daughter1Track.psi);
 		    float Daughter1py    = Daughter1Track.pt * sin(Daughter1Track.psi);
 		    float Daughter1pz    = Daughter1Track.pt * Daughter1Track.tanl;
 		    float Daughter1dedx  = Daughter1Track.dedx;
 		    int Daughter1ndedx = Daughter1Track.ndedx;
-	      
+
 		    TVector3 Daughter1(Daughter1px, Daughter1py, Daughter1pz);
 		    float Daughter1p = Daughter1.Mag();
-	      
+
 		    double dedx1E = getDedx(Daughter1p, e);
 		    float nSigma1 = log(Daughter1dedx / dedx1E) / A * sqrt(Daughter1ndedx);
-	      
+
 		    float Daughter1phi = Daughter1.Phi();
 		    if(Daughter1phi < 0.) Daughter1phi += twopi;
 		    hdEdx_P1->Fill(Daughter1p , Daughter1dedx);
@@ -2239,30 +2241,30 @@ void l4Builder::event(daqReader *rdr)
 		    if(Daughter1TofSN >= 0.) {
 			Daughter1beta = hlt_node->node[Daughter1NodeSN].beta;
 		    }
-	      
+
 		    if(Daughter2TrackSN < 0.) continue;
 		    hlt_track Daughter2Track =  hlt_pt->primaryTrack[Daughter2TrackSN];
 		    float Daughter2phidiff = -999.;
 		    float Daughter2beta = -999.;
 		    float Daughter2_PE_ratio = -999.;
 		    float Daughter2_EP_ratio = -999.;
-	      
+
 		    float Daughter2q     =  Daughter2Track.q;
 		    float Daughter2px    =  Daughter2Track.pt * cos(Daughter2Track.psi);
 		    float Daughter2py    =  Daughter2Track.pt * sin(Daughter2Track.psi);
 		    float Daughter2pz    =  Daughter2Track.pt * Daughter2Track.tanl;
 		    float Daughter2dedx  =  Daughter2Track.dedx;
 		    int Daughter2ndedx = Daughter2Track.ndedx;
-	      
+
 		    TVector3 Daughter2(Daughter2px, Daughter2py, Daughter2pz);
 		    float Daughter2p = Daughter2.Mag();
-	      
+
 		    double dedx2E = getDedx(Daughter2p, e);
 		    float nSigma2 = log(Daughter2dedx / dedx2E) / A * sqrt(Daughter2ndedx);
-	      
+
 		    float Daughter2phi = Daughter2.Phi();
 		    if(Daughter2phi < 0.0) Daughter2phi += twopi;
-	      
+
 		    hdEdx_P2->Fill(Daughter2p , Daughter2dedx);
 		    if(Daughter2EmcSN >= 0) {
 			float Daughter2TowerEnergy = hlt_emc->emcTower[Daughter2EmcSN].energy;
@@ -2276,19 +2278,19 @@ void l4Builder::event(daqReader *rdr)
 		    }
 
 		    // j/psi
-	
+
 		    float px = cos(hlt_diep->ePair[i].psi) * hlt_diep->ePair[i].pt;
 		    float py = sin(hlt_diep->ePair[i].psi) * hlt_diep->ePair[i].pt;
 		    float pz = hlt_diep->ePair[i].tanl * hlt_diep->ePair[i].pt;
 		    float m = hlt_diep->ePair[i].invariantMass;
-	      
+
 		    if(Daughter1q * Daughter2q < 0.) {
 			hDiElectronInvMassFullRange->Fill(m);
 		    }
 		    else {
 			hDiElectronInvMassFullRangeBG->Fill(m);
 		    }
-	      
+
 		    if(nSigma1 > -0.9 && nSigma2 > -0.9 &&
 		       Daughter1p > 2.3 && Daughter2p > 1.5 &&
 		       Daughter1ndedx > 16 && Daughter2ndedx > 16 &&
@@ -2310,7 +2312,7 @@ void l4Builder::event(daqReader *rdr)
 					hDiElectronInvMassCutBG->Fill(m);
 				    }
 			    }
-		
+
 			if(Daughter1TofSN >= 0.) {
 			    hDaughter1TpxEmcInverseBeta->Fill(1 / Daughter1beta);
 			}
@@ -2318,7 +2320,7 @@ void l4Builder::event(daqReader *rdr)
 			    hDaughter2TpxEmcInverseBeta->Fill(1 / Daughter2beta);
 			}
 		    }
-	      
+
 		    TLorentzVector jpsi(0, 0, 0, 0);
 		    jpsi.SetXYZM(px, py, pz, m);
 		    float rapidity = jpsi.Rapidity();
@@ -2577,7 +2579,7 @@ void l4Builder::defineHltPlots()
 	ph = new PlotHisto();
 	ph->histo = hDcaZ_EMCMatch;
 	HltPlots[index]->addHisto(ph);
-	
+
 	index++; //9
 	hdEdx = new TH2F("dEdx", "dEdx", 500, -5, 5, 300, 0, 3.e-5);
 	HltPlots[index]->setDrawOpts("colz");
@@ -2996,19 +2998,19 @@ void l4Builder::defineBesGoodPlots()
         BesGoodPlots[index]->addHisto(new PlotHisto(hBesGoodBunchId));
 
 	// index++; // 6
-	// pBesGoodVxT = new TProfile("BesGoodVxT", "<Vx> vs. time (nPTracks > 200);Seconds in the run;<Vx>", 
+	// pBesGoodVxT = new TProfile("BesGoodVxT", "<Vx> vs. time (nPTracks > 200);Seconds in the run;<Vx>",
 	// 			   80, 0, 2400, -1.5, 1.5, "s");
 	// //pBesGoodVxT->GetYaxis()->SetLimits(-0.5, 0.1);
 	// BesGoodPlots[index]->addHisto(new PlotHisto(pBesGoodVxT));
 	// BesGoodPlots[index]->setMaxY(.1);
 	// BesGoodPlots[index]->setMinY(-.5);
-	
+
 
 	// index++; // 7
-	// pBesGoodVyT = new TProfile("BesGoodVyT", "<Vy> vs. time  (nPTracks > 200);Seconds in the run;<Vy>", 
+	// pBesGoodVyT = new TProfile("BesGoodVyT", "<Vy> vs. time  (nPTracks > 200);Seconds in the run;<Vy>",
 	// 			   80, 0, 2400, -1.5, 1.5, "s");
 	// pBesGoodVyT->GetYaxis()->SetLimits(-0.5, 0.1);
-	// BesGoodPlots[index]->addHisto(new PlotHisto(pBesGoodVyT));	
+	// BesGoodPlots[index]->addHisto(new PlotHisto(pBesGoodVyT));
 	// BesGoodPlots[index]->setMaxY(.1);
 	// BesGoodPlots[index]->setMinY(-.5);
 
@@ -3061,7 +3063,7 @@ void l4Builder::defineHLTGood2Plots()
 	HLTGood2Plots[index]->addHisto(ph);
 
 	// index++; //4
-	// pHLTGood2VzT = new TProfile("HLTGood2VzT", "<Vz> vs. time  (nPTracks > 200 && |Vz| < 100cm);Seconds in the run;<Vz>", 
+	// pHLTGood2VzT = new TProfile("HLTGood2VzT", "<Vz> vs. time  (nPTracks > 200 && |Vz| < 100cm);Seconds in the run;<Vz>",
 	// 			   80, 0, 2400, -100, 100, "s");
 	// HLTGood2Plots[index]->addHisto(new PlotHisto(pHLTGood2VzT));
 	// HLTGood2Plots[index]->setMaxY(100);
@@ -3076,7 +3078,7 @@ void l4Builder::defineHLTGood2Plots()
 	index++; //5
 	hHLTGood2VzT_2 = new TH1D("HLTGood2VzT_2", "dummy", 40, 0, 2400);
 	HLTGood2Plots[index]->addHisto(new PlotHisto(hHLTGood2VzT_2));
-	
+
 }
 
 void l4Builder::defineBesMonitorPlots()
@@ -3183,7 +3185,7 @@ void l4Builder::defineFixedTargetMonitorPlots()
 {
 	index = 0;
 	FixedTargetMonitorPlots[index]->setDrawOpts("colz");
-	hFixedTargetMonitorVertexXY = new TH2D("FixedTargetMonitor_VertexXY", "FixedTargetMonitor_VertexXY", 
+	hFixedTargetMonitorVertexXY = new TH2D("FixedTargetMonitor_VertexXY", "FixedTargetMonitor_VertexXY",
 					       200, -5, 5, 200, -5, 5);
 	ph = new PlotHisto();
 	ph->histo = hFixedTargetMonitorVertexXY;
@@ -3217,7 +3219,7 @@ void l4Builder::defineFixedTargetMonitorPlots()
 	FixedTargetMonitorPlots[index]->addHisto(ph);
 
 	index++; //5
-	hFixedTargetMonitorVertexYZ = new TH2D("FixedTargetMonitor_VertexYZ", 
+	hFixedTargetMonitorVertexYZ = new TH2D("FixedTargetMonitor_VertexYZ",
 					       "FixedTargetMonitor_VertexYZ;vertex Z [cm];vertex Y [cm]",
 					       400, 160, 240, 200, -5, 5);
 	ph = new PlotHisto();
@@ -3258,7 +3260,7 @@ void l4Builder::defineDiElectronPlots() // not only J/Psi, but di-pion, di-muon
         lega15->AddEntry(hDiElectronInvMassTpxEmc, "Unlike Sign", "l");
         lega15->AddEntry(hDiElectronInvMassTpxEmcBG, "Like Sign", "l");
         DiElectronPlots[index]->addElement(lega15);
-	
+
 
 	index++; //1
 	hDiElectronInvMassCut = new TH1D("DiElectronInvMassCut", "DiElectronInvMassCut", 120, 1., 13.);
@@ -3467,7 +3469,7 @@ void l4Builder::defineDiMuonPlots()
         lega21->AddEntry(hInvMassLS, "Like Sign", "l");
         DiMuonPlots[index]->addElement(lega21);
 
-	index++; //1 
+	index++; //1
 	DiMuonPlots[index]->setDrawOpts("colz");
 	hMtdHitMap = new TH2F("hMtdHitMap","MTD: channel vs backleg of hits;backleg;channel",30,0.5,30.5,60,-0.5,59.5);
 	ph = new PlotHisto();
@@ -3888,7 +3890,7 @@ void l4Builder::defineHltPlots_UPC()
 	hVzDiff_UPC = new TH1D("VzDiff_UPC", "VzDiff_UPC", 200, -20, 20);
 	ph = new PlotHisto();
 	ph->histo = hVzDiff_UPC;
-	HltPlots_UPC[index]->addHisto(ph); 
+	HltPlots_UPC[index]->addHisto(ph);
 
 }
 

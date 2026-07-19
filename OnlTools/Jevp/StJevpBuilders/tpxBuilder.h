@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -16,14 +15,14 @@ class tpxBuilder : public JevpBuilder {
   int nlasers;
   double drift_vel;
 
-  tpxBuilder(JevpServer *parent=NULL); 
+  tpxBuilder(JevpServer *parent=NULL);
   ~tpxBuilder();
-  
+
 
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
@@ -99,7 +98,7 @@ class tpxBuilder : public JevpBuilder {
     };
   } contents;
 
- 
+
   // These are the cluster based versions of above...
   union {
     TH1 *array[];
@@ -140,7 +139,7 @@ class tpxBuilder : public JevpBuilder {
   } extras;
 
   //*** End Histogram Declarations...
-    
+
   void  setPhiAngleMap();
   float mPhiAngleMap[24][45][182];
   LaserReader *laserReader;

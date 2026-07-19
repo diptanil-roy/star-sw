@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -14,20 +13,20 @@ class bemcBuilder : public JevpBuilder {
 public:
   int run;
 
-  bemcBuilder(JevpServer *parent=NULL); 
+  bemcBuilder(JevpServer *parent=NULL);
   ~bemcBuilder();
-  
+
 
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
   char statusfile[255];
-  
+
   void addCrateIDs(JevpPlot *plot, Int_t numBoxes, Int_t *min, Int_t *max, const char *labelFormat);
   void addPatchSumIndex(JevpPlot *plot);
   void addTowerIndex(JevpPlot *plot);

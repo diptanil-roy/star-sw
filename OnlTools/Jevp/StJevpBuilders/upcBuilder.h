@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -12,14 +11,14 @@ class upcBuilder : public JevpBuilder {
 public:
   int run;
 
-  upcBuilder(JevpServer *parent=NULL); 
+  upcBuilder(JevpServer *parent=NULL);
   ~upcBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
@@ -41,8 +40,8 @@ public:
       TH1* upcTOF_L1mult_vs_ZDCadcsum; //TOF mult vs ZDCadcsum
     };
   } contents;
-  
+
   //*** End Histogram Declarations...
-  
+
   ClassDef(upcBuilder, 1);
 };

@@ -62,7 +62,7 @@
    Common /AgCZDOC/  LRZDOC
    integer kBUF; parameter (kBUF = 256000)
    integer BUFF(kBUF)
-#include "slug/stafunc.inc" 
+#include "slug/stafunc.inc"
                                * * *
    IPR=%Iprin;    Check %Module != Module;
    omod=%Module;  %Module=Module;  Cs=Module(5:5);
@@ -87,7 +87,7 @@
       IF( INDEX(STAR_LEVEL,'dev') == 0 ) THEN
           WRITE (*,*) STAR_LEVEL, '|', 'dev', '|', INDEX(STAR_LEVEL,'dev')
          "Require some form of DEV (straight dev, adev, .dev, etc...)"
-         Ipr = -1; 
+         Ipr = -1;
       ENDIF
    ENDIF
 *
@@ -135,7 +135,7 @@
        If Iquest(1)!=0 {<w>Iquest(1); (' problem opening detm.rz IQUEST=',i6);}
      }
      ELSE
-     { 
+     {
 *VP    LUN = MEMGETF(Lrecl*5000+1000)-LONGF(IQ)+1; IQ(LUN)=LRecl
 *VP    LUN = LONGF(BUFF) -LONGF(IQ)+1; IQ(LUN)=LRecl
        BUFF(1) = LRecl
@@ -162,5 +162,4 @@
 *     IF (IOPTC!=0 & LUN>=10) WRITE(TOPDIR,'(3HLUN,i2)') LUN
 *
    END
-
 

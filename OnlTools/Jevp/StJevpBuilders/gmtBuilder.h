@@ -2,20 +2,21 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TRandom.h>
 #include <string>
 #include <math.h>
 
+class daq_dta;
+
 class gmtBuilder : public JevpBuilder {
 public:
   int run;
 
-  gmtBuilder(JevpServer *parent=NULL); 
+  gmtBuilder(JevpServer *parent=NULL);
   ~gmtBuilder();
-  
+
 
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
@@ -51,12 +52,12 @@ public:
     else if ( iarm == 1 && iport==0 && ( iapv >= 2 && iapv <= 3 ) )   { return 5; }
     else if ( iarm == 1 && iport==1 && ( iapv >= 0 && iapv <= 1 ) )   { return 6; }
     else if ( iarm == 1 && iport==1 && ( iapv >= 2 && iapv <= 3 ) )   { return 7; }
-    else    { 
-      printf("getLayer() wrong layer#  iarm=%d iport=%d IAPV=%d\n",iarm,iport,iapv); 
-      return -1; 
+    else    {
+      printf("getLayer() wrong layer#  iarm=%d iport=%d IAPV=%d\n",iarm,iport,iapv);
+      return -1;
     }
   }
-  
+
 bool usedAPV(int i_rdo,int i_arm,int i_port,int i_apv){
   if(i_rdo==1 && i_arm==0 && i_port==0 && i_apv>=0 && i_apv<=3) return true;
   if(i_rdo==1 && i_arm==0 && i_port==1 && i_apv>=0 && i_apv<=3) return true;
@@ -79,45 +80,45 @@ bool usedAPV(int i_rdo,int i_arm,int i_port,int i_apv){
     struct {
 
       TH2* pedestalsAPV[16];   // for 16 APPVs
-   
+
     };
   } hPedContents;
 
    union {
-    
+
     TH1 *hSignalArray[];
     struct {
-      
+
       TH1* Signals[8];  //For 8 Chambers (0-7)
-      
+
     };
   } hSignalContents;
-  
+
   union {
-    
+
     TH1 *hTimebinArray[];
     struct {
-      
+
       TH1* Timebins[8];  //For 8 Chambers (0-7)
       };
   } hTimebinContents;
-  
+
   union {
-    
+
     TH1 *hSumArray[];
     struct {
-      TH1* h1SumAllsignals; 
-                 
+      TH1* h1SumAllsignals;
+
     };
   } hSumContents;
   union {
   TH2 *hSigtb[];
     struct {
-      TH2* h2SignalTimebins; 
+      TH2* h2SignalTimebins;
     };
   } hSigtbContents;
 
-  static const int ADCcut = 760;  //Can be changed 
+  static const int ADCcut = 760;  //Can be changed
   //========= Fixed Values ===================
   static const int numLayers = 8;
   static const int numRDOs = 1;
@@ -138,8 +139,8 @@ bool usedAPV(int i_rdo,int i_arm,int i_port,int i_apv){
 
   JevpPlot** plots;
   daq_dta *dd;
-   
- 
+
+
   double  SignalPedCorrected[numARMs][numPORTs][numAPVs][numChannels][numTimebins];
   double  SumSignalPedCorrected[numTimebins][numLayers];
 

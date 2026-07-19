@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 //#include "RunStatus.h"
 
 #include "StEvent/StTriggerData2016.h"
@@ -14,7 +13,7 @@
 
 
 // This is the one PlotSet that is guarenteed to always exist
-// It's main purpose is to provide the run information 
+// It's main purpose is to provide the run information
 // To the server...
 //
 // It has no plots (currently)
@@ -23,7 +22,7 @@
 
 class vpdBuilder : public JevpBuilder {
  public:
- 
+
   vpdBuilder(JevpServer *parent=NULL) : JevpBuilder(parent) {
     plotsetname = (char *)"vpd";
     memset(&contents, 0, sizeof(contents));
@@ -37,8 +36,8 @@ class vpdBuilder : public JevpBuilder {
   }
 
   void ReadConfig();
-    
-    
+
+
   int pulserCh( int ich ) {
     return (ich / 4) * 4;
   }
@@ -77,7 +76,7 @@ class vpdBuilder : public JevpBuilder {
       //   TH2 *vertex_vs_l3_vertex;
       TH2 *earliestTAC_vs_eastchan;
       TH2 *earliestTAC_vs_westchan;
-      
+
       TH2 *hi_cdb[4];
       TH2 *hi_tac_east_vs_tac_west;
       //  TH2 *hi_vertex_vs_l3_vertex;
@@ -104,7 +103,7 @@ class vpdBuilder : public JevpBuilder {
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   int eBinEdges[19][10];
   int eCorrs[19][10];
 

@@ -1,10 +1,12 @@
 #include <stdio.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 
 #include "JevpBuilder.h"
 #include "DAQ_READER/daqReader.h"
 #include <DAQ_READER/daq_dta.h> //xue
 #include <DAQ_L3/daq_l3.h> //xue
+#include <DAQ_HLT/daq_hlt.h>
+#include "RTS/include/HLT/HLTFormats.h"
 #include <TStyle.h> //xue
 #include "TVector3.h"//xue
 #include "TFile.h"//xue
@@ -31,8 +33,8 @@
 
 ClassImp(HltphiBuilder);
 
-void HltphiBuilder::initialize(int argc, char *argv[]) {	
-  gStyle->SetPalette(1); 
+void HltphiBuilder::initialize(int argc, char *argv[]) {
+  gStyle->SetPalette(1);
   gStyle->SetOptLogz(1);
 
   current_day = 0;
@@ -74,7 +76,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
 
 
   //////////////////// run histograms ////////////////////
-	  
+
   //-------glob tracks-------//
   TH1I *Run_EventStat = new TH1I("hltphi_Run_EventStat","hltphi_Run_EventStat",4,0.,4);
   PlotHisto *ph = new PlotHisto();
@@ -428,7 +430,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
   addPlot(day[8]);
 
   //--------Heavy Fragment-------//
-  day[9]->optstat = 0; 
+  day[9]->optstat = 0;
   day[9]->setDrawOpts("colz");
   TH2F *Day_HFM_dEdx = new TH2F("hltphi_Day_HFM_dEdx","hltphi_Day_HFM_dEdx",100,-5,5,100,0,3.e-5);
   ph = new PlotHisto(); //55
@@ -447,7 +449,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
   ph->histo = Cumu_EventStat;
   all[0]->addHisto(ph);
   addPlot(all[0]);
-	  
+
   //------prim track-----//
   all[1]->optstat = 0;
   all[1]->setDrawOpts("colz");
@@ -499,8 +501,8 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
   ph->histo = Cumu_Multi;
   all[8]->addHisto(ph);
   addPlot(all[8]);
-	  
-	  
+
+
   //-----jpsi flow-----//
   TProfile *Cumu_CosRes = new TProfile("hltphi_Cumu_CosRes","hltphi_Cumu_CosRes",10,0.,10);
   ph = new PlotHisto();//65
@@ -637,7 +639,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
   ph->histo = Cumu_Background_p4;
   all[19]->addHisto(ph);
   addPlot(all[19]);
- 
+
   all[20]->optstat = 0;
   all[20]->setDrawOpts("E2");
   TH1D *Cumu_InvMass_p5 = new TH1D("hltphi_Cumu_InvMass_p5","hltphi_Cumu_InvMass_p5",220, 0.98 ,1.2);
@@ -774,7 +776,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
   getPlotByIndex(56)->getHisto(0)->histo->GetXaxis()->SetBinLabel(3,"J/psi");
   getPlotByIndex(56)->getHisto(0)->histo->GetXaxis()->SetBinLabel(4,"Heavy Fragment");
 
-	  
+
   //-------------if crash ! recovery !----------------//
 
   char file[256];
@@ -786,21 +788,21 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
   inStream->getline(file,256);
 
   TFile *ftmp = new TFile(file);
-	 
+
   if(!ftmp||!(ftmp->IsOpen())){
-	
+
     printf("First Run ! Initialize! \n");
-	  
+
   }
   else{
     printf("Crash !! \n");
-	
+
     //-------recovery day histogram---------//
     getPlotByIndex(46)->getHisto(0)->histo = (TH1I *)ftmp->Get("Day_EventStat");
-		 
+
     //-----track
     getPlotByIndex(47)->getHisto(0)->histo = (TH2F *)ftmp->Get("Day_Prim_dEdx");
-		
+
     //------event
     getPlotByIndex(48)->getHisto(0)->histo = (TH1D *)ftmp->Get("Day_VertexX");
     getPlotByIndex(49)->getHisto(0)->histo = (TH1D *)ftmp->Get("Day_VertexY");
@@ -809,7 +811,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
     getPlotByIndex(52)->getHisto(0)->histo = (TH1D *)ftmp->Get("Day_Lm_VertexY");
     getPlotByIndex(53)->getHisto(0)->histo = (TH1D *)ftmp->Get("Day_Lm_VertexZ");
     getPlotByIndex(54)->getHisto(0)->histo = (TH1I *)ftmp->Get("Day_Multi");
-		  
+
     //--Heavy Fragment
     getPlotByIndex(55)->getHisto(0)->histo = (TH2F *)ftmp->Get("Day_HFM_dEdx");
     getPlotByIndex(55)->getHisto(1)->histo = (TH2F *)ftmp->Get("Day_Ref_dEdx");
@@ -817,7 +819,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
     ////////--------------Cumu histograms-------------///
     getPlotByIndex(56)->getHisto(0)->histo = (TH1I *)ftmp->Get("Cumu_EventStat");
     getPlotByIndex(57)->getHisto(0)->histo = (TH2F *)ftmp->Get("Cumu_Prim_dEdx");
-		
+
     //--event
     getPlotByIndex(58)->getHisto(0)->histo = (TH1D *)ftmp->Get("Cumu_VertexX");
     getPlotByIndex(59)->getHisto(0)->histo = (TH1D *)ftmp->Get("Cumu_VertexY");
@@ -826,7 +828,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
     getPlotByIndex(62)->getHisto(0)->histo = (TH1D *)ftmp->Get("Cumu_Lm_VertexY");
     getPlotByIndex(63)->getHisto(0)->histo = (TH1D *)ftmp->Get("Cumu_Lm_VertexZ");
     getPlotByIndex(64)->getHisto(0)->histo = (TH1I *)ftmp->Get("Cumu_Multi");
-		  
+
     //----pair
     getPlotByIndex(65)->getHisto(0)->histo = (TProfile *)ftmp->Get("Cumu_CosRes");
 
@@ -841,7 +843,7 @@ void HltphiBuilder::initialize(int argc, char *argv[]) {
   }
 
 };
-  
+
 
 void HltphiBuilder::startrun(daqReader *rdr){
 
@@ -849,32 +851,32 @@ void HltphiBuilder::startrun(daqReader *rdr){
   getPlotByIndex(0)->getHisto(0)->histo->GetXaxis()->SetBinLabel(2,"High Pt");
   getPlotByIndex(0)->getHisto(0)->histo->GetXaxis()->SetBinLabel(3,"J/psi");
   getPlotByIndex(0)->getHisto(0)->histo->GetXaxis()->SetBinLabel(4,"Heavy Fragment");
-           
+
   //----------refresh histograms----------//
   char filename[256];
   ifstream *in = new ifstream;
   in->open("Current.list");
   in->getline(filename,256);
-	  
+
   TFile *f = new TFile(filename);
   if(!(f->IsOpen())){
-	
+
     printf("First Run ! startrun! \n");
 
   }
   else{
-		  
+
     TObjString *obj = (TObjString *)f->Get("normal");
-		  
+
     if(obj){
-		
+
       cout<<"normal \n"<<endl;
 
     }
     else{
-			 
+
       for(int i=0;i<87;i++){
-			
+
 	getPlotByIndex(i)->getHisto(0)->histo->Reset();
 	cout<<"refresh ! \n"<<endl;
 
@@ -903,7 +905,7 @@ void HltphiBuilder::startrun(daqReader *rdr){
 
   //------------resolution--------------//
 
-  TProfile *TempCosRes = (TProfile *)getPlotByIndex(65)->getHisto(0)->histo ; 
+  TProfile *TempCosRes = (TProfile *)getPlotByIndex(65)->getHisto(0)->histo ;
 
   if(!(TempCosRes->GetEntries())){
 
@@ -912,7 +914,7 @@ void HltphiBuilder::startrun(daqReader *rdr){
 
   }
   else{
-		  
+
     double deltaRes2Sub = 0.005;
     double res2Sub = sqrt(TempCosRes->GetBinContent(1));
     double res2SubErr = TempCosRes->GetBinError(1)/(2.*res2Sub);
@@ -959,7 +961,7 @@ void HltphiBuilder::startrun(daqReader *rdr){
       str.replace(len-3,3,"");
       str.replace(0,2,"");
       unsigned int day = atoi(str.c_str());
-	  
+
       if(day != current_day){
 
       getPlotByIndex(46)->getHisto(0)->histo->GetXaxis()->SetBinLabel(1,"All");
@@ -970,7 +972,7 @@ void HltphiBuilder::startrun(daqReader *rdr){
       for(int j=46;j<56;j++){
       getPlotByIndex(j)->getHisto(0)->histo->Reset();
       }
-	
+
       current_day = day;
       printf("Starting day #%d\n",current_day);
 
@@ -1000,7 +1002,7 @@ void HltphiBuilder::stoprun(daqReader *rdr) {
       sprintf(temlab,"%s",getPlotByIndex(85)->getHisto(0)->histo->GetXaxis()->GetBinLabel(i));
       getPlotByIndex(85)->getHisto(0)->histo->GetXaxis()->SetBinLabel(i-1,temlab);
     }
-  } 
+  }
 
   TF1 *fit = new TF1("fit","[0]*exp(-(x-[1])*(x-[1])/2./[2]/[2])",low,high);   //
   fit->SetParName(0,"Apt");
@@ -1093,13 +1095,13 @@ void HltphiBuilder::stoprun(daqReader *rdr) {
   WriteList(Currentrun);
   printf("Stopping run #%d\n",rdr->run);
 };
- 
-  
+
+
 /////////////////////////////////////////////////////////////////////
 //////---raw phi | dedx | Eventplane && subevents | jpsiflow---//////
-///////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////
 void HltphiBuilder::event(daqReader *rdr) {
-  
+
   float Qx;
   float Qy;
   float Qx_ran1;
@@ -1244,11 +1246,11 @@ void HltphiBuilder::event(daqReader *rdr) {
     short trayId     = hlt_tof->tofHit[i].trayId;
     short channel    = hlt_tof->tofHit[i].channel;
     float tdc         = hlt_tof->tofHit[i].tdc;
-    float tof         = hlt_tof->tofHit[i].tof; 
+    float tof         = hlt_tof->tofHit[i].tof;
     float triggertime = hlt_tof->tofHit[i].triggertime;
 
     ((TH2F *)getPlotByIndex(42)->getHisto(0)->histo)->Fill(trayId, triggertime);
-    ((TH1D *)getPlotByIndex(43)->getHisto(0)->histo)->Fill(channel); 
+    ((TH1D *)getPlotByIndex(43)->getHisto(0)->histo)->Fill(channel);
 
   }
 
@@ -1273,7 +1275,7 @@ void HltphiBuilder::event(daqReader *rdr) {
 
     short phi   = hlt_emc->emcTower[i].phi;
     float  eta   = hlt_emc->emcTower[i].eta;
-    float  z     = hlt_emc->emcTower[i].z; 
+    float  z     = hlt_emc->emcTower[i].z;
     int softId  = hlt_emc->emcTower[i].softId;
     int daqId   = hlt_emc->emcTower[i].daqId;
 
@@ -1384,7 +1386,7 @@ void HltphiBuilder::event(daqReader *rdr) {
 
 	  ((TH1D *)getPlotByIndex(10)->getHisto(0)->histo)->Fill(phi,ptWeight);  //run
 
-	  phiWeight = TempFlowPhiWgt->GetBinContent(phiPointer+1); 
+	  phiWeight = TempFlowPhiWgt->GetBinContent(phiPointer+1);
 
 	  weight =ptWeight*phiWeight;
 
@@ -1568,7 +1570,7 @@ void HltphiBuilder::event(daqReader *rdr) {
   }
 
 
-  //---------------  Di electrons ------------------// 
+  //---------------  Di electrons ------------------//
 
   for(u_int i=0 ; i < hlt_diep->nEPairs ; i++) {
 
@@ -1585,7 +1587,7 @@ void HltphiBuilder::event(daqReader *rdr) {
 
     float dau1q     = hlt_pt->primaryTrack[dau1TrackSN].q ;
     float dau1pt    = hlt_pt->primaryTrack[dau1TrackSN].pt ;
-    float dau1px    = hlt_pt->primaryTrack[dau1TrackSN].pt*cos(hlt_pt->primaryTrack[dau1TrackSN].psi) ; 
+    float dau1px    = hlt_pt->primaryTrack[dau1TrackSN].pt*cos(hlt_pt->primaryTrack[dau1TrackSN].psi) ;
     float dau1py    = hlt_pt->primaryTrack[dau1TrackSN].pt*sin(hlt_pt->primaryTrack[dau1TrackSN].psi) ;
     float dau1pz    = hlt_pt->primaryTrack[dau1TrackSN].pt*hlt_pt->primaryTrack[dau1TrackSN].tanl ;
     float dau1nHits = hlt_pt->primaryTrack[dau1TrackSN].nHits ;
@@ -1634,7 +1636,7 @@ void HltphiBuilder::event(daqReader *rdr) {
     float dau2py    =  hlt_pt->primaryTrack[dau2TrackSN].pt*sin(hlt_pt->primaryTrack[dau2TrackSN].psi) ;
     float dau2pz    =  hlt_pt->primaryTrack[dau2TrackSN].pt*hlt_pt->primaryTrack[dau2TrackSN].tanl ;
     float dau2nHits =  hlt_pt->primaryTrack[dau2TrackSN].nHits ;
-    float dau2dedx  =  hlt_pt->primaryTrack[dau2TrackSN].dedx ; 
+    float dau2dedx  =  hlt_pt->primaryTrack[dau2TrackSN].dedx ;
     float dau2Qx;
     float dau2Qy;
 
@@ -1702,7 +1704,7 @@ void HltphiBuilder::event(daqReader *rdr) {
     float phiAngle = hlt_diep->ePair[i].psi ;
     if( phiAngle < 0. ) phiAngle = phiAngle + twopi ;
 
-    phiAngle -= psi ; 
+    phiAngle -= psi ;
 
     if( phiAngle < 0.0 ) phiAngle += twopi ;
     if( phiAngle > 0.5*twopi ) phiAngle = twopi - phiAngle ;
@@ -1741,9 +1743,9 @@ int HltphiBuilder::selectRun(daqReader *rdr) {
   return 1;
 }
 
-void HltphiBuilder::main(int argc, char *argv[]) 
+void HltphiBuilder::main(int argc, char *argv[])
 {
-        
+
   HltphiBuilder hltdis;
   hltdis.Main(argc, argv);
 
@@ -1786,10 +1788,10 @@ void HltphiBuilder::WriteList(char *outFile)
 
 //-----------write current histograms
 void HltphiBuilder::WriteHistogram(char *outFile)
-{       
+{
   TString str("normal");
   TObjString *obj = new TObjString(str);
-	
+
   char filehist[256];
   sprintf(filehist,"%s",outFile);
   TFile f(filehist,"RECREATE");
@@ -1810,7 +1812,7 @@ void HltphiBuilder::WriteHistogram(char *outFile)
   getPlotByIndex(81)->getHisto(1)->histo->Write();
   getPlotByIndex(82)->getHisto(1)->histo->Write();
   getPlotByIndex(83)->getHisto(1)->histo->Write();
-	
+
   InvMassv2->Write();
   InvMassv2_Sin->Write();
   DenInvMass->Write();
@@ -1896,25 +1898,25 @@ void HltphiBuilder::Jpsiflow()
   double weight;
 
   /*	for(int i=1;i<=100;i++){
-	
+
   for(int k=0;k<=100;k++){
   temp_mass=k*0.02+1.99;
   temp_cos=i*0.02+(-1.01);
   */
   for(int i=1;i<=200;i++){
-	             
+
     for(int k=10;k<=120;k++){
       temp_mass=k*0.001+0.9795;
       temp_cos=i*0.01+(-1.005);
 
       for(int j=1;j<=10;j++){ //0.0GeV---1.0GeV
-	
+
 	weight = InvMassv2->GetBinContent(j,i,k);
 	((TProfile *)getPlotByIndex(66)->getHisto(0)->histo)->Fill(temp_mass,temp_cos,weight);
 
       }
       for(int j=11;j<=20;j++){ //1.0GeV---2.0GeV
-			
+
 	weight = InvMassv2->GetBinContent(j,i,k);
 	((TProfile *)getPlotByIndex(67)->getHisto(0)->histo)->Fill(temp_mass,temp_cos,weight);
 
@@ -1946,14 +1948,14 @@ void HltphiBuilder::Jpsiflow()
     }
   }
 
-	
+
   /////////////// --jpsi mass peak-- ---S/(S+B)--  ////////////////
   /*
     double fitlow = 2.;
     double fithi  = 4.;
     double ptlow ;
     double pthi ;
-    int philow ; 
+    int philow ;
     int phihi ;
     double rebin = 1.0 ;
 
@@ -2019,16 +2021,16 @@ void HltphiBuilder::Jpsiflow()
 
     getPlotByIndex(72 + i)->getHisto(0)->histo->SetXTitle("M_{inv}(ee) (GeV/c^{2})");
     getPlotByIndex(72 + i)->getHisto(0)->histo->SetXTitle("M_{inv}ee GeV/c^{2}");
-		
+
     sprintf(title,"hltphi_cen100_%3.1fGeV<pt<%3.1fGeV",(ptlow-1)*0.1,pthi*0.1);
     getPlotByIndex(72 + i)->getHisto(0)->histo->SetName(title);
     getPlotByIndex(72 + i)->getHisto(0)->histo->SetTitle(title);
     //		getPlotByIndex(72 + i)->getHisto(0)->histo->SetMarkerStyle(20);
-    getPlotByIndex(72 + i)->getHisto(0)->histo->SetMarkerColor(4);	
+    getPlotByIndex(72 + i)->getHisto(0)->histo->SetMarkerColor(4);
 
     //		int xbin=100;
     //		double total[100];
-                
+
     int xbin = 70 ;
     double total[70] ;
 
@@ -2051,7 +2053,7 @@ void HltphiBuilder::Jpsiflow()
     //		TF1 *fit = new TF1("fit","[0]*exp(-(x-[1])*(x-[1]) / (2.*[2]*[2])) + [3]+[4]*x",fitlow, fithi);
     //		TF1 *fit_1 =new TF1("fit_1","[0]*exp(-(x-[1])*(x-[1]) / (2.*[2]*[2]))",fitlow,fithi);
     //		TF1 *fit_2 =new TF1("fit_2","[0]+[1]*x",fitlow,fithi);
-                
+
     TF1 *fit = new TF1("fit2","2.0*0.001*[0]*[1]/(2*3.1415926)/(pow(x - [2],2) + [1]*[1]/4) + [3]+[4]*x",fitlow, fithi);
     TF1 *fit_1 =new TF1("fit2_1","2.0*0.001*[0]*[1]/(2*3.1415926)/(pow(x - [2],2) + [1]*[1]/4) ",fitlow,fithi);
     TF1 *fit_2 =new TF1("fit2_2","[0]+[1]*x",fitlow,fithi);
@@ -2073,19 +2075,19 @@ void HltphiBuilder::Jpsiflow()
       fit->SetParLimits(0, 1., 1000000000.);
       fit->SetParLimits(1, 3.06, 3.14 );
     */	//fit->SetParLimits(2, 0., 1. );
-	        
+
     fit->SetParName(0,"Apt");
     fit->SetParName(1,"FWHM");
     fit->SetParName(2,"Mass");
     fit->SetParName(3,"pol0");
     fit->SetParName(4,"pol1");
-	 
+
     fit->SetParameter(0, 1000);
     fit->SetParameter(1, 0.007);
     fit->SetParameter(2, 1.019);
     fit->SetParameter(3, 10.);
     fit->SetParameter(4, -4.);
-		
+
     fit->SetParLimits(0, 10., 100000000.);
     fit->SetParLimits(2, 1.017, 1.021);
     //----------run7 phi test
@@ -2124,7 +2126,7 @@ void HltphiBuilder::Jpsiflow()
       int bin = getPlotByIndex(78 + i)->getHisto(1)->histo->GetXaxis()->FindBin(tem_x);
       getPlotByIndex(78 + i)->getHisto(1)->histo->SetBinContent(bin , tem_y);
     }
-		
+
     double signal;
     double xx;
     for(int t=0;t<xbin;t++)
@@ -2141,7 +2143,7 @@ void HltphiBuilder::Jpsiflow()
 	if(fabs(total[t])<1.0e-6)ratio[t]=1.0e-6;
 	else  ratio[t] = signal/total[t];
       }
-	
+
     ////-----fit v2-----////
 
     //  Double_t *xx ;
@@ -2167,7 +2169,7 @@ void HltphiBuilder::Jpsiflow()
     //		fitfun->SetLineColor(4);
 
     getPlotByIndex(66+i)->getHisto(0)->histo->Fit("fitfun","ERMNB");
-		
+
 
     TCanvas *can2 = new TCanvas("can2","can2",20,10,700,460);
     char file[256];
@@ -2178,7 +2180,7 @@ void HltphiBuilder::Jpsiflow()
     fitfun->Draw("same");
     //fitfun->GetYaxis()->SetRangeUser(0,0.1);
 
-  
+
 #ifdef CODE_DIES
     can2->SaveAs(file);
 #endif

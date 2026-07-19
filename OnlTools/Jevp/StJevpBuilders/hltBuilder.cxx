@@ -11,6 +11,8 @@
 #include "DAQ_READER/daqReader.h"
 #include <DAQ_READER/daq_dta.h>
 #include <DAQ_L3/daq_l3.h>
+#include <DAQ_HLT/daq_hlt.h>
+#include "RTS/include/HLT/HLTFormats.h"
 #include <TStyle.h>
 #include "TVector3.h"
 #include <fstream>
@@ -28,7 +30,7 @@
 
 using namespace std;
 
-ClassImp(hltBuilder);    		
+ClassImp(hltBuilder);
 
 //timeval PeriodicStart;
 //timeval PeriodicResetTest;
@@ -44,12 +46,12 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   //timeval PeriodicStart;
   //timeval PeriodicResetTest;
   //timeval PeriodicResult;
-  
+
   HBTCALC = kTRUE;
   V2CALC = kTRUE;
   eventCounter = 0;
   FILL_VPD_HISTOS = kFALSE;  //Just to start.
-  
+
   mPion = 0.13957018;  	//pion mass in gev/c^2
   mKaon = 0.493677;    	//kaon mass in gev/c^2
   mProton = 0.93827203;	//proton mass in gev/c^2
@@ -60,46 +62,46 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   mmb = 0;
   UPDATE_SWITCH = 0;
   multRange=1000;
-  vertRange=150.; //units are cm.  
- 
+  vertRange=150.; //units are cm.
+
   //////////////////////////////Initialize JevpPlot////////////////////////////////
   gStyle->SetPalette(1);
   gStyle->SetOptLogz(1);
   gStyle->SetPadGridX(0);
   gStyle->SetPadGridY(0);
-  
+
   for(int i=0;i<156;i++) {
     HltPlots[i] = new JevpPlot();
     HltPlots[i]->gridx=0;
     HltPlots[i]->gridy=0;
     HltPlots[i]->setPalette(1);
-  } 
+  }
 
   ///////////////////////////////HltPlots histograms//////////////////////////////
-  int index=0;    
-  
+  int index=0;
+
   HltPlots[index]->setDrawOpts((char*)"hist");  //HltPlots[index]->gridx=-1;
   Vz1 = new TH1F("hlt_vertexZ_1", "Set A - Single Run Z vertex (No Cuts)",500,-250,250);
   Vz1->Sumw2();  ph = new PlotHisto();  ph->histo = Vz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vz2 = new TH1F("hlt_vertexZ_2", "Set A - Single Run Z vertex (Vr < 2)",500,-250,250);
   Vz2->Sumw2();  ph = new PlotHisto();  ph->histo = Vz2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vz3 = new TH1F("hlt_vertexZ_3", "Set A - Single Run Z vertex (Vr < 2, Vz < 70)",500,-250,250);
   Vz3->Sumw2();  ph = new PlotHisto();  ph->histo = Vz3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
-  HltPlots[index]->setDrawOpts((char*)"hist");  
+
+  index++;
+  HltPlots[index]->setDrawOpts((char*)"hist");
   Vz4 = new TH1F("hlt_vertexZ_4", "Set A - Single Run Z vertex (Vr > 2, Vz < 70)",500,-250,250);
   Vz4->Sumw2();  ph = new PlotHisto();  ph->histo = Vz4;  HltPlots[index]->addHisto(ph);
-        
+
   addPlot(HltPlots[index]);
 
   LOG(DBG, "here");
@@ -109,59 +111,59 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   Vx1 = new TH1F("hlt_vertexX_1", "Set A - Single Run X vertex (No Cuts)",100,-5.,5.);
   Vx1->Sumw2();  ph = new PlotHisto();  ph->histo = Vx1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vx2 = new TH1F("hlt_vertexX_2", "Set A - Single Run X vertex (Vr < 2)",100,-5.,5.);
   Vx2->Sumw2();  ph = new PlotHisto();  ph->histo = Vx2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vx3 = new TH1F("hlt_vertexX_3", "Set A - Single Run X vertex (Vr < 2, Vz < 70)",100,-5.,5.);
   Vx3->Sumw2();  ph = new PlotHisto();  ph->histo = Vx3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vx4 = new TH1F("hlt_vertexX_4", "Set A - Single Run X vertex (Vr > 2, Vz < 70)",100,-5.,5.);
   Vx4->Sumw2();  ph = new PlotHisto();  ph->histo = Vx4;  HltPlots[index]->addHisto(ph);
-        
+
   addPlot(HltPlots[index]);
 
   index++;
-    
+
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vy1 = new TH1F("hlt_vertexY_1", "Set A - Single Run Y vertex (No Cuts)",100,-5.,5.);
   Vy1->Sumw2();  ph = new PlotHisto();  ph->histo = Vy1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vy2 = new TH1F("hlt_vertexY_2", "Set A - Single Run Y vertex (Vr < 2)",100,-5.,5.);
   Vy2->Sumw2();  ph = new PlotHisto();  ph->histo = Vy2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vy3 = new TH1F("hlt_vertexY_3", "Set A - Single Run Y vertex (Vr < 2, Vz < 70)",100,-5.,5.);
   Vy3->Sumw2();  ph = new PlotHisto();  ph->histo = Vy3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Vy4 = new TH1F("hlt_vertexY_4", "Set A - Single Run Y vertex (Vr > 2, Vz < 70)",100,-5.,5.);
   Vy4->Sumw2();  ph = new PlotHisto();  ph->histo = Vy4;  HltPlots[index]->addHisto(ph);
-        
+
   addPlot(HltPlots[index]);
 
   index++;
-   
+
   HltPlots[index]->setDrawOpts((char*)"hist");  HltPlots[index]->logy=1;
   Vr1 = new TH1F("hlt_vertexR_1","Set A - Single Run R vertex (No Cuts)",50,0.,5.);
   Vr1->Sumw2();  ph = new PlotHisto();  ph->histo = Vr1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");  HltPlots[index]->logy=1;
   Vr2 = new TH1F("hlt_vertexR_2","Set A - Single Run R vertex (Vr < 2)",50,0.,5.);
@@ -173,11 +175,11 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   Vr3 = new TH1F("hlt_vertexR_3","Set A - Single Run R vertex (Vr < 2, Vz < 70)",50,0.,5.);
   Vr3->Sumw2();  ph = new PlotHisto();  ph->histo = Vr3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");  HltPlots[index]->logy=1;
   Vr4 = new TH1F("hlt_vertexR_4","Set A - Single Run R vertex (Vr > 2, Vz < 70)",50,0.,5.);
-  Vr4->Sumw2();  ph = new PlotHisto();  ph->histo = Vr4;  HltPlots[index]->addHisto(ph);    
+  Vr4->Sumw2();  ph = new PlotHisto();  ph->histo = Vr4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
   index++;
@@ -187,53 +189,53 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   Vxy1 = new TH2F("hlt_xyvertex_1","Set A - Single Run vertexY (cm) vs vertexX (cm) (No Cuts)",100,-5.,5.,100,-5.,5.);
   Vxy1->Sumw2();  ph = new PlotHisto();  ph->histo = Vxy1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   Vxy2 = new TH2F("hlt_xyvertex_2","Set A - Single Run vertexY (cm) vs vertexX (cm) (Vr < 2)", 100,-5.,5.,100,-5.,5.);
   Vxy2->Sumw2();  ph = new PlotHisto();  ph->histo = Vxy2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   Vxy3 = new TH2F("hlt_xyvertex_3","Set A - Single Run vertexY (cm) vs vertexX (cm) (Vr < 2, Vz < 70)", 100,-5.,5.,100,-5.,5.);
   Vxy3->Sumw2();  ph = new PlotHisto();  ph->histo = Vxy3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   Vxy4 = new TH2F("hlt_xyvertex_4","Set A - Single Run vertexY (cm) vs vertexX (cm) (Vr > 2, Vz < 70)",100,-5.,5.,100,-5.,5.);
   Vxy4->Sumw2();  ph = new PlotHisto();  ph->histo = Vxy4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
-    
+
   index++;
 
   HltPlots[index]->setDrawOpts((char*)"hist");
   Mult1 = new TH1F("hlt_Mult1","Set A - Single Run Multiplicity (No Cuts)",150,0,1500);
   Mult1->Sumw2();  ph = new PlotHisto();  ph->histo = Mult1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Mult2 = new TH1F("hlt_Mult2","Set A - Single Run Multiplicity (Vr < 2)",150,0,1500);
-  Mult2->Sumw2();  ph = new PlotHisto();  ph->histo = Mult2;  HltPlots[index]->addHisto(ph);    
+  Mult2->Sumw2();  ph = new PlotHisto();  ph->histo = Mult2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Mult3 = new TH1F("hlt_Mult3","Set A - Single Run Multiplicity (Vr < 2, Vz < 70)",150,0,1500);
   Mult3->Sumw2();  ph = new PlotHisto();  ph->histo = Mult3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Mult4 = new TH1F("hlt_Mult4","Set A - Single Run Multiplicity (Vr > 2, Vz < 70)",150,0,1500);
   Mult4->Sumw2();  ph = new PlotHisto();  ph->histo = Mult4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
 
   index++;
@@ -242,30 +244,30 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   Eta1 = new TH1F("hlt_Pseudorapidity_1","Set A - Single Run Pseudorapidity (No Cuts)",50,-5,5);
   Eta1->Sumw2();  ph = new PlotHisto();  ph->histo = Eta1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Eta2 = new TH1F("hlt_Pseudorapidity_2","Set A - Single Run Pseudorapidity (Vr < 2)",50,-5,5);
   Eta2->Sumw2();  ph = new PlotHisto();  ph->histo = Eta2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Eta3 = new TH1F("hlt_Pseudorapidity_3","Set A - Single Run Pseudorapidity (Vr < 2, Vz < 70)",50,-5,5);
   Eta3->Sumw2();  ph = new PlotHisto();  ph->histo = Eta3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   Eta4 = new TH1F("hlt_Pseudorapidity_4","Set A - Single Run Pseudorapidity (Vr > 2, Vz < 70)",50,-5,5);
   Eta4->Sumw2();  ph = new PlotHisto();  ph->histo = Eta4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
 
 //Analysis Histos
   index++;
 
-  HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1; 
+  HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   Timevsmultiplicity = new TH2F("hlt_Timevsmultiplicity","Single Run processing time (to fill these HLT histos) vs multiplicity",100,0.,1000.,100,0.,200.);
   Timevsmultiplicity->Sumw2();  ph = new PlotHisto();  ph->histo = Timevsmultiplicity;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
@@ -277,45 +279,45 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   Ratevsmultiplicity->Sumw2();  ph = new PlotHisto();  ph->histo = Ratevsmultiplicity;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-  index++;   
+  index++;
 
   //flow
   v2_pt = new TProfile("hlt_v2pt","Single Run v2_pt",100,0.,10.);
   v2_pt->Sumw2();  ph = new PlotHisto();  ph->histo = v2_pt;  HltPlots[index]->addHisto(ph);
-    
-  
+
+
   //v2ptCounter = new TH1F("hlt_v2ptCounter","v2ptCounter",100,0.,10.);
   //v2ptCounter->Sumw2();
   //ph = new PlotHisto();
   //ph->histo = v2ptCounter;
   //    HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]); 
-   
+  addPlot(HltPlots[index]);
+
   index++;
 
   resolution = new TProfile("hlt_resolution","Single Run v2 resolution",1,-100.,100.);
   resolution->Sumw2();
 //  resolution->SetMinimum(-1.);
-//  resolution->SetMaximum(1.);  
+//  resolution->SetMaximum(1.);
   ph = new PlotHisto();  ph->histo = resolution;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-   
-  index++;    
+
+  index++;
 
   corrected_v2_pt = new TProfile("hlt_v2corrected","Single Run v2_pt_corrected",100,0.,10.);
   corrected_v2_pt->Sumw2();  ph = new PlotHisto();  ph->histo = corrected_v2_pt;
   HltPlots[index]->addHisto(ph);
-  
+
   LOG(DBG, "HERE");
-   
+
   //corrected_v2ptCounter = new TH1F("hlt_v2correctedCounter","v2correctedCounter",100,0,10);
   //corrected_v2ptCounter->Sumw2();
   //ph = new PlotHisto();
   //ph->histo = corrected_v2ptCounter;
   //    HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);   
+  addPlot(HltPlots[index]);
 
-  index++; 
+  index++;
 
   //HltPlots[index]->logz=1;
   //HltPlots[index]->optstat = 0;
@@ -324,7 +326,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   dedx->Sumw2();  ph = new PlotHisto();  ph->histo = dedx;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-  index++; 
+  index++;
 
   //Pt SPECTRA PLOTS AND HISTOS    i
   HltPlots[index]->logy=1;
@@ -347,16 +349,16 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   pminus->Sumw2();  ph = new PlotHisto();  ph->histo = pminus;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-  index++;  
+  index++;
 
   Yield = new TH1F("hlt_yields","Single Run Yields",20,0,20);
   Yield->Sumw2();  ph = new PlotHisto();  ph->histo = Yield;  HltPlots[index]->addHisto(ph);
 
   corrected_Yield = new TH1F("hlt_yieldsCorrected","Single Run Yields from corrected pt spectra",20,0,20);
   corrected_Yield->Sumw2();  ph = new PlotHisto();  ph->histo = corrected_Yield;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]); 
+  addPlot(HltPlots[index]);
 
-  index++;    
+  index++;
 
   //HBT HISTOGRAMS
   hbtnum = new TH1F("hlt_hbtnum","Single Run hbtnum",50,0,0.5);
@@ -372,100 +374,100 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   hbtCF_qinv->Sumw2();  ph = new PlotHisto();  ph->histo = hbtCF_qinv;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-  //LETTER REFERS TO BEMC CUT, NUMBER REFERS TO VERTEX CUT    
+  //LETTER REFERS TO BEMC CUT, NUMBER REFERS TO VERTEX CUT
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_1a = new TH2F("BEMC_1a","BEMC e vs w (No BEMC cuts, No Vertex cuts) 1a",100,0.,200.,100,0.,200.);
-  BEMC_1a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1a;  HltPlots[index]->addHisto(ph);    
+  BEMC_1a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1a;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);    jml--> did this twice!
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_2a = new TH2F("BEMC_2a","BEMC e vs w (No BEMC cuts, Vr < 2) 2a",100,0.,200.,100,0.,200.);
-  BEMC_2a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2a;  HltPlots[index]->addHisto(ph);    
+  BEMC_2a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2a;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_3a = new TH2F("BEMC_3a","BEMC e vs w (No BEMC cuts, Vr < 2, Vz < 70) 3a",100,0.,200.,100,0.,200.);
-  BEMC_3a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3a;  HltPlots[index]->addHisto(ph);    
+  BEMC_3a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3a;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_4a = new TH2F("BEMC_4a","BEMC e vs w (No BEMC cuts, Vr > 2, Vz < 70) 4a",100,0.,200.,100,0.,200.);
-  BEMC_4a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4a;  HltPlots[index]->addHisto(ph);    
+  BEMC_4a->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4a;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_1b = new TH2F("BEMC_1b","BEMC e vs w (BEMC e & w > 20, No Vertex cuts) 1b",100,0.,200.,100,0.,200.);
-  BEMC_1b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1b;  HltPlots[index]->addHisto(ph);    
+  BEMC_1b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1b;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_2b = new TH2F("BEMC_2b","BEMC e vs w (BEMC e & w > 20, Vr < 2) 2b",100,0.,200.,100,0.,200.);
-  BEMC_2b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2b;  HltPlots[index]->addHisto(ph);    
+  BEMC_2b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2b;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_3b = new TH2F("BEMC_3b","BEMC e vs w (BEMC e & w > 20, Vr < 2, Vz < 70) 3b",100,0.,200.,100,0.,200.);
-  BEMC_3b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3b;  HltPlots[index]->addHisto(ph);    
+  BEMC_3b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3b;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_4b = new TH2F("BEMC_4b","BEMC e vs w (BEMC e & w > 20, Vr > 2, Vz < 70) 4b",200,0.,200.,200,0.,200.);
-  BEMC_4b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4b;  HltPlots[index]->addHisto(ph);    
+  BEMC_4b->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4b;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_1c = new TH2F("BEMC_1c","BEMC e vs w (BEMC e & w > 20, BEMC |e-w| < 6, No Vertex cuts) 1c",100,0.,200.,100,0.,200.);
-  BEMC_1c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1c;  HltPlots[index]->addHisto(ph);    
+  BEMC_1c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1c;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_2c = new TH2F("BEMC_2c","BEMC e vs w (BEMC e & w > 20, BEMC |e-w| < 6, Vr < 2) 2c",100,0.,200.,100,0.,200.);
-  BEMC_2c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2c;  HltPlots[index]->addHisto(ph);    
+  BEMC_2c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2c;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_3c = new TH2F("BEMC_3c","BEMC e vs w (BEMC e & w > 20, BEMC |e-w| < 6, Vr < 2, Vz < 70) 3c",100,0.,200.,100,0.,200.);
-  BEMC_3c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3c;  HltPlots[index]->addHisto(ph);    
+  BEMC_3c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3c;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_4c = new TH2F("BEMC_4c","BEMC e vs w (BEMC e & w > 20, BEMC |e-w| < 6, Vr > 2, Vz < 70) 4c",200,0.,200.,200,0.,200.);
-  BEMC_4c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4c;  HltPlots[index]->addHisto(ph);    
+  BEMC_4c->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4c;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
- 
+
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_1d = new TH2F("BEMC_1d","BEMC e vs w (BEMC e & w > 1 GeV, No Vertex cuts) 1d",100,0.,200.,100,0.,200.);
-  BEMC_1d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1d;  HltPlots[index]->addHisto(ph);    
+  BEMC_1d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_1d;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_2d = new TH2F("BEMC_2d","BEMC e vs w (BEMC e & w > 1 GeV, Vr < 2) 2d",100,0.,200.,100,0.,200.);
-  BEMC_2d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2d;  HltPlots[index]->addHisto(ph);    
+  BEMC_2d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_2d;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_3d = new TH2F("BEMC_3d","BEMC e vs w (BEMC e & w > 1 GeV, Vr < 2, Vz < 70) 3d",200,0.,200.,200,0.,200.);
-  BEMC_3d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3d;  HltPlots[index]->addHisto(ph);    
+  BEMC_3d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_3d;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
   index++;             HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   BEMC_4d = new TH2F("BEMC_4d","BEMC e vs w (BEMC e & w > 1 GeV, Vr > 2, Vz < 70) 4d",100,0.,200.,100,0.,200.);
-  BEMC_4d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4d;  HltPlots[index]->addHisto(ph);    
+  BEMC_4d->Sumw2(); ph = new PlotHisto(); ph->histo = BEMC_4d;  HltPlots[index]->addHisto(ph);
   //addPlot(HltPlots[index]);
   addPlot(HltPlots[index]);
 
@@ -475,24 +477,24 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   cVz1 = new TH1F("hlt_cVertexZ_1", "Set B - Single Run Z vertex (No Cuts)",500,-250.,250.);
   cVz1->Sumw2();  ph = new PlotHisto();  ph->histo = cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVz2 = new TH1F("hlt_cVertexZ_2", "Set B - Single Run Z vertex (Vr < 2, Vz < 70, pTracks > 5)",500,-250.,250.);
   cVz2->Sumw2();  ph = new PlotHisto();  ph->histo = cVz2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVz3 = new TH1F("hlt_cVertexZ_3", "Set B - Single Run Z vertex (Vr < 2, pTracks > 5)",500,-250.,250.);
   cVz3->Sumw2();  ph = new PlotHisto();  ph->histo = cVz3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVz4 = new TH1F("hlt_cVertexZ_4", "Set B - Single Run Z vertex (Vr > 2)",500,-250.,250.);
   cVz4->Sumw2();  ph = new PlotHisto();  ph->histo = cVz4;  HltPlots[index]->addHisto(ph);
-        
+
   addPlot(HltPlots[index]);
 
   LOG(DBG, "here");
@@ -502,45 +504,45 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   cVx1 = new TH1F("hlt_cVertexX_1", "Set B - Single Run X vertex (No Cuts)",100,-5.,5.);
   cVx1->Sumw2();  ph = new PlotHisto();  ph->histo = cVx1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVx2 = new TH1F("hlt_cVertexX_2", "Set B - Single Run X vertex (Vr < 2, Vz < 70, pTracks > 5)",100,-5.,5.);
   cVx2->Sumw2();  ph = new PlotHisto();  ph->histo = cVx2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVx3 = new TH1F("hlt_cVertexX_3", "Set B - Single Run X vertex (Vr > 2)",100,-5.,5.);
   cVx3->Sumw2();  ph = new PlotHisto();  ph->histo = cVx3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
   index++;
-    
+
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVy1 = new TH1F("hlt_cVertexY_1", "Set B - Single Run Y vertex (No Cuts)",100,-5.,5.);
   cVy1->Sumw2();  ph = new PlotHisto();  ph->histo = cVy1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVy2 = new TH1F("hlt_cVertexY_2", "Set B - Single Run Y vertex (Vr < 2, Vz < 70, pTracks > 5)",100,-5.,5.);
   cVy2->Sumw2();  ph = new PlotHisto();  ph->histo = cVy2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVy3 = new TH1F("hlt_cVertexY_3", "Set B - Single Run Y vertex (Vr > 2)",100,-5.,5.);
   cVy3->Sumw2();  ph = new PlotHisto();  ph->histo = cVy3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
   index++;
-  
-  HltPlots[index]->setDrawOpts((char*)"hist"); 
+
+  HltPlots[index]->setDrawOpts((char*)"hist");
   cVr1 = new TH1F("hlt_cVertexR_1","Set B - Single Run R vertex (No Cuts)",50,0.,5.);
   cVr1->Sumw2();  ph = new PlotHisto();  ph->histo = cVr1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVr2 = new TH1F("hlt_cVertexR_2","Set B - Single Run R vertex (Vr < 2, Vz < 70, pTracks > 5)",50,0.,5.);
@@ -552,38 +554,38 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   cVr3 = new TH1F("hlt_cVertexR_3","Set B - Single Run R vertex (Vz < 70, pTracks > 5)",50,0.,5.);
   cVr3->Sumw2();  ph = new PlotHisto();  ph->histo = cVr3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cVr4 = new TH1F("hlt_cVertexR_4","Set B - Single Run R vertex (Vr > 2)",50,0.,5.);
-  cVr4->Sumw2();  ph = new PlotHisto();  ph->histo = cVr4;  HltPlots[index]->addHisto(ph);    
+  cVr4->Sumw2();  ph = new PlotHisto();  ph->histo = cVr4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-    
+
   index++;
 
   HltPlots[index]->setDrawOpts((char*)"hist");
   cM1 = new TH1F("hlt_cMult1","Set B - Single Run Mult [nPrimaryTracks] (No Cuts)",150,0,1500);
   cM1->Sumw2();  ph = new PlotHisto();  ph->histo = cM1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cM2 = new TH1F("hlt_cMult2","Set B - Single Run Mult [nPrimaryTracks] (Vr < 2, Vz < 70, pTracks > 5)",150,0,1500);
-  cM2->Sumw2();  ph = new PlotHisto();  ph->histo = cM2;  HltPlots[index]->addHisto(ph);    
+  cM2->Sumw2();  ph = new PlotHisto();  ph->histo = cM2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cM3 = new TH1F("hlt_cMult3","Set B - Single Run Mult [nPrimaryTracks] (Vr < 2, Vz < 70)",150,0,1500);
   cM3->Sumw2();  ph = new PlotHisto();  ph->histo = cM3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   cM4 = new TH1F("hlt_cMult4","Set B - Single Run Mult [nPrimaryTracks] (Vr > 2)",150,0,1500);
   cM4->Sumw2();  ph = new PlotHisto();  ph->histo = cM4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
 
 //************************* End of Histos for Vertex Method of Event Counting **************************
@@ -597,24 +599,24 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_cVz1 = new TH1F("hlt_tot_cVertexZ_1","Set B - Accumulated Z vertex (No Cuts)",500,-250.,250.);
   tot_cVz1->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVz2 = new TH1F("hlt_tot_cVertexZ_2","Set B - Accumulated Z vertex (Vr < 2, Vz < 70, pTracks > 5)",500,-250.,250.);
   tot_cVz2->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVz2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVz3 = new TH1F("hlt_tot_cVertexZ_3","Set B - Accumulated Z vertex (Vr < 2, pTracks > 5)",500,-250.,250.);
   tot_cVz3->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVz3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVz4 = new TH1F("hlt_tot_cVertexZ_4","Set B - Accumulated Z vertex (Vr > 2)",500,-250.,250.);
   tot_cVz4->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVz4;  HltPlots[index]->addHisto(ph);
-        
+
   addPlot(HltPlots[index]);
 
   LOG(DBG, "here");
@@ -624,45 +626,45 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_cVx1 = new TH1F("hlt_tot_cVertexX_1","Set B - Accumulated X vertex (No Cuts)",100,-5.,5.);
   tot_cVx1->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVx1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVx2 = new TH1F("hlt_tot_cVertexX_2","Set B - Accumulated X vertex (Vr < 2, Vz < 70, pTracks > 5)",100,-5.,5.);
   tot_cVx2->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVx2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVx3 = new TH1F("hlt_tot_cVertexX_3","Set B - Accumulated X vertex (Vr > 2)",100,-5.,5.);
   tot_cVx3->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVx3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
   index++;
-    
+
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVy1 = new TH1F("hlt_tot_cVertexY_1","Set B - Accumulated Y vertex (No Cuts)",100,-5.,5.);
   tot_cVy1->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVy1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVy2 = new TH1F("hlt_tot_cVertexY_2","Set B - Accumulated Y vertex (Vr < 2, Vz < 70, pTracks > 5)",100,-5.,5.);
   tot_cVy2->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVy2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVy3 = new TH1F("hlt_tot_cVertexY_3","Set B - Accumulated Y vertex (Vr > 2)",100,-5.,5.);
   tot_cVy3->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVy3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
   index++;
-   
+
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVr1 = new TH1F("hlt_tot_cVertexR_1","Set B - Accumulated R vertex (No Cuts)",50,0.,5.);
   tot_cVr1->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVr1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVr2 = new TH1F("hlt_tot_cVertexR_2","Set B - Accumulated R vertex (Vr < 2, Vz < 70, pTracks > 5)",50,0.,5.);
@@ -674,38 +676,38 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_cVr3 = new TH1F("hlt_tot_cVertexR_3","Set B - Accumulated R vertex (Vz < 70, pTracks > 5)",50,0.,5.);
   tot_cVr3->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVr3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cVr4 = new TH1F("hlt_tot_cVertexR_4","Set B - Accumulated R vertex (Vr > 2)",50,0.,5.);
-  tot_cVr4->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVr4;  HltPlots[index]->addHisto(ph);    
+  tot_cVr4->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cVr4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-    
+
   index++;
 
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cM1 = new TH1F("hlt_tot_cMult1","Set B - Accumulated Mult [nPrimaryTracks] (No Cuts)",150,0,1500);
   tot_cM1->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cM1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cM2 = new TH1F("hlt_tot_cMult2","Set B - Accumulated Mult [nPrimaryTracks] (Vr < 2, Vz < 70, pTracks > 5)",150,0,1500);
-  tot_cM2->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cM2;  HltPlots[index]->addHisto(ph);    
+  tot_cM2->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cM2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cM3 = new TH1F("hlt_tot_cMult3","Set B - Accumulated Mult [nPrimaryTracks] (Vr < 2, Vz < 70)",150,0,1500);
   tot_cM3->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cM3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   tot_cM4 = new TH1F("hlt_tot_cMult4","Set B - Accumulated Mult [nPrimaryTracks] (Vr > 2)",150,0,1500);
   tot_cM4->Sumw2();  ph = new PlotHisto();  ph->histo = tot_cM4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
 
   index++;
@@ -716,27 +718,27 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_Vxy1 = new TH2F("hlt_tot_xyvertex_1","Set A - Accumulated vertexY (cm) vs vertexX (cm) (No Cuts)",100,-5.,5.,100,-5.,5.);
   tot_Vxy1->Sumw2();  ph = new PlotHisto();  ph->histo = tot_Vxy1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   tot_Vxy2 = new TH2F("hlt_tot_xyvertex_2","Set A - Accumulated vertexY (cm) vs vertexX (cm) (Vr < 2)", 100,-5.,5.,100,-5.,5.);
   tot_Vxy2->Sumw2();  ph = new PlotHisto();  ph->histo = tot_Vxy2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   tot_Vxy3 = new TH2F("hlt_tot_xyvertex_3","Set A - Accumulated vertexY (cm) vs vertexX (cm) (Vr < 2, Vz < 70)", 100,-5.,5.,100,-5.,5.);
   tot_Vxy3->Sumw2();  ph = new PlotHisto();  ph->histo = tot_Vxy3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   tot_Vxy4 = new TH2F("hlt_tot_xyvertex_4","Set A - Accumulated vertexY (cm) vs vertexX (cm) (Vr > 2, Vz < 70)",100,-5.,5.,100,-5.,5.);
   tot_Vxy4->Sumw2();  ph = new PlotHisto();  ph->histo = tot_Vxy4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
 //END of new vy vs vx histograms *************
 
@@ -755,45 +757,45 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_Ratevsmultiplicity->Sumw2();  ph = new PlotHisto();  ph->histo = tot_Ratevsmultiplicity;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-  index++;   
+  index++;
 
   //flow
   tot_v2_pt = new TProfile("hlt_tot_v2pt","Accumulated v2_pt",100,0.,10.);
   tot_v2_pt->Sumw2();  ph = new PlotHisto();  ph->histo = tot_v2_pt;  HltPlots[index]->addHisto(ph);
-    
-  
+
+
   //tot_v2ptCounter = new TH1F("hlt_tot_v2ptCounter","v2ptCounter",100,0.,10.);
   //tot_v2ptCounter->Sumw2();
   //ph = new PlotHisto();
   //ph->histo = tot_v2ptCounter;
   //    HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]); 
-   
+  addPlot(HltPlots[index]);
+
   index++;
 
   tot_resolution = new TProfile("hlt_tot_resolution","Accumulated v2 resolution",1,-100.,100.);
   tot_resolution->Sumw2();
 //  resolution->SetMinimum(-1.);
-//  resolution->SetMaximum(1.);  
+//  resolution->SetMaximum(1.);
   ph = new PlotHisto();  ph->histo = tot_resolution;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-   
-  index++;    
+
+  index++;
 
   tot_corrected_v2_pt = new TProfile("hlt_tot_v2corrected","Accumulated v2_pt_corrected",100,0.,10.);
   tot_corrected_v2_pt->Sumw2();  ph = new PlotHisto();  ph->histo = tot_corrected_v2_pt;
   HltPlots[index]->addHisto(ph);
-  
+
   LOG(DBG, "HERE");
-   
+
   //corrected_v2ptCounter = new TH1F("hlt_v2correctedCounter","v2correctedCounter",100,0,10);
   //corrected_v2ptCounter->Sumw2();
   //ph = new PlotHisto();
   //ph->histo = corrected_v2ptCounter;
   //    HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);   
+  addPlot(HltPlots[index]);
 
-  index++; 
+  index++;
 
   //HltPlots[index]->logz=1;
   //HltPlots[index]->optstat = 0;
@@ -802,7 +804,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_dedx->Sumw2();  ph = new PlotHisto();  ph->histo = tot_dedx;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-  index++; 
+  index++;
 
   //Pt SPECTRA PLOTS AND HISTOS    i
   HltPlots[index]->logy=1;
@@ -825,16 +827,16 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_pminus->Sumw2();  ph = new PlotHisto();  ph->histo = tot_pminus;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-  index++;  
+  index++;
 
   tot_Yield = new TH1F("hlt_tot_yields","Accumulated Yields",20,0,20);
   tot_Yield->Sumw2();  ph = new PlotHisto();  ph->histo = tot_Yield;  HltPlots[index]->addHisto(ph);
 
   tot_corrected_Yield = new TH1F("hlt_tot_yieldsCorrected","Accumulated Yields from corrected pt spectra",20,0,20);
   tot_corrected_Yield->Sumw2();  ph = new PlotHisto();  ph->histo = tot_corrected_Yield;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]); 
+  addPlot(HltPlots[index]);
 
-  index++;    
+  index++;
 
   //HBT HISTOGRAMS
   tot_hbtnum = new TH1F("hlt_tot_hbtnum","Accumulated hbtnum",50,0,0.5);
@@ -861,24 +863,24 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   periodic_cVz1 = new TH1F("hlt_periodic_cVertexZ_1","Set C - Periodic Z vertex (No Cuts)",500,-250.,250.);
   periodic_cVz1->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVz2 = new TH1F("hlt_periodic_cVertexZ_2","Set C - Periodic Z vertex (Vr < 2, Vz < 70, pTracks > 5)",500,-250.,250.);
   periodic_cVz2->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVz2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVz3 = new TH1F("hlt_periodic_cVertexZ_3","Set C - Periodic Z vertex (Vr < 2, pTracks > 5)",500,-250.,250.);
   periodic_cVz3->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVz3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVz4 = new TH1F("hlt_periodic_cVertexZ_4","Set C - Periodic Z vertex (Vr > 2)",500,-250.,250.);
   periodic_cVz4->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVz4;  HltPlots[index]->addHisto(ph);
-        
+
   addPlot(HltPlots[index]);
 
   LOG(DBG, "here");
@@ -888,45 +890,45 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   periodic_cVx1 = new TH1F("hlt_periodic_cVertexX_1","Set C - Periodic X vertex (No Cuts)",100,-5.,5.);
   periodic_cVx1->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVx1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVx2 = new TH1F("hlt_periodic_cVertexX_2","Set C - Periodic X vertex (Vr < 2, Vz < 70, pTracks > 5)",100,-5.,5.);
   periodic_cVx2->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVx2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVx3 = new TH1F("hlt_periodic_cVertexX_3","Set C - Periodic X vertex (Vr > 2)",100,-5.,5.);
   periodic_cVx3->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVx3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
   index++;
-    
+
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVy1 = new TH1F("hlt_periodic_cVertexY_1","Set C - Periodic Y vertex (No Cuts)",100,-5.,5.);
   periodic_cVy1->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVy1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVy2 = new TH1F("hlt_periodic_cVertexY_2","Set C - Periodic Y vertex (Vr < 2, Vz < 70, pTracks > 5)",100,-5.,5.);
   periodic_cVy2->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVy2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
-  index++;    
+
+  index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVy3 = new TH1F("hlt_periodic_cVertexY_3","Set C - Periodic Y vertex (Vr > 2)",100,-5.,5.);
   periodic_cVy3->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVy3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
   index++;
-   
+
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVr1 = new TH1F("hlt_periodic_cVertexR_1","Set C - Periodic R vertex (No Cuts)",50,0.,5.);
   periodic_cVr1->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVr1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVr2 = new TH1F("hlt_periodic_cVertexR_2","Set C - Periodic R vertex (Vr < 2, Vz < 70, pTracks > 5)",50,0.,5.);
@@ -938,38 +940,38 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   periodic_cVr3 = new TH1F("hlt_periodic_cVertexR_3","Set C - Periodic R vertex (Vz < 70, pTracks > 5)",50,0.,5.);
   periodic_cVr3->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVr3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cVr4 = new TH1F("hlt_periodic_cVertexR_4","Set C - Periodic R vertex (Vr > 2)",50,0.,5.);
-  periodic_cVr4->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVr4;  HltPlots[index]->addHisto(ph);    
+  periodic_cVr4->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVr4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
 
-    
+
   index++;
 
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cM1 = new TH1F("hlt_periodic_cMult1","Set C - Periodic Mult [nPrimaryTracks] (No Cuts)",150,0,1500);
   periodic_cM1->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cM1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cM2 = new TH1F("hlt_periodic_cMult2","Set C - Periodic Mult [nPrimaryTracks] (Vr < 2, Vz < 70, pTracks > 5)",150,0,1500);
-  periodic_cM2->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cM2;  HltPlots[index]->addHisto(ph);    
+  periodic_cM2->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cM2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cM3 = new TH1F("hlt_periodic_cMult3","Set C - Periodic Mult [nPrimaryTracks] (Vr < 2, Vz < 70)",150,0,1500);
   periodic_cM3->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cM3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   periodic_cM4 = new TH1F("hlt_periodic_cMult4","Set C - Periodic Mult [nPrimaryTracks] (Vr > 2)",150,0,1500);
   periodic_cM4->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cM4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
 
   index++;
@@ -980,27 +982,27 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   periodic_cVxy1 = new TH2F("hlt_periodic_cxyvertex_1","Set C - Periodic vertexY (cm) vs vertexX (cm) (No Cuts)",100,-5.,5.,100,-5.,5.);
   periodic_cVxy1->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVxy1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   periodic_cVxy2 = new TH2F("hlt_periodic_cxyvertex_2","Set C - Periodic vertexY (cm) vs vertexX (cm) (Vr < 2, Vz < 70, pTracks > 5)", 100,-5.,5.,100,-5.,5.);
   periodic_cVxy2->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVxy2;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   periodic_cVxy3 = new TH2F("hlt_periodic_cxyvertex_3","Set C - Periodic vertexY (cm) vs vertexX (cm) (Vz < 70, pTracks > 5)", 100,-5.,5.,100,-5.,5.);
   periodic_cVxy3->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVxy3;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   index++;
   //HltPlots[index]->logz=1;
   HltPlots[index]->setDrawOpts((char *)"colz");  HltPlots[index]->optlogz=1;
   periodic_cVxy4 = new TH2F("hlt_periodic_cxyvertex_4","Set C - Periodic vertexY (cm) vs vertexX (cm) (Vr > 2)",100,-5.,5.,100,-5.,5.);
   periodic_cVxy4->Sumw2();  ph = new PlotHisto();  ph->histo = periodic_cVxy4;  HltPlots[index]->addHisto(ph);
-    
+
   addPlot(HltPlots[index]);
 //END of new vy vs vx and other Periodic histograms *************
 
@@ -1013,13 +1015,13 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   setD_singlerun_cVz1 = new TH1F("hlt_setD_singlerun_cVz1","Set D - VPD trigger Single Run Vz (no cuts)",500,-250.,250.);
   setD_singlerun_cVz1->Sumw2();  ph = new PlotHisto(); ph->histo = setD_singlerun_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_singlerun_cVz2 = new TH1F("hlt_setD_singlerun_cVz2","Set D - VPD trigger Single Run Vz (Vz < 100)",500,-250.,250.);
   setD_singlerun_cVz2->Sumw2();  ph = new PlotHisto(); ph->histo = setD_singlerun_cVz2;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);  
-  
+  addPlot(HltPlots[index]);
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_singlerun_cVz3 = new TH1F("hlt_setD_singlerun_cVz3","Set D - VPD trigger Single Run Vz (Vz < 70)",500,-250.,250.);
@@ -1031,20 +1033,20 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   setD_singlerun_cVz4 = new TH1F("hlt_setD_singlerun_cVz4","Set D - VPD trigger Single Run Vz (Vz < 100, pTracks > 5)",500,-250.,250.);
   setD_singlerun_cVz4->Sumw2();  ph = new PlotHisto(); ph->histo = setD_singlerun_cVz4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   //periodic
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_periodic_cVz1 = new TH1F("hlt_setD_periodic_cVz1","Set D - VPD trigger Periodic Vz (no cuts)",500,-250.,250.);
   setD_periodic_cVz1->Sumw2();  ph = new PlotHisto(); ph->histo = setD_periodic_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_periodic_cVz2 = new TH1F("hlt_setD_periodic_cVz2","Set D - VPD trigger Periodic Vz (Vz < 100)",500,-250.,250.);
   setD_periodic_cVz2->Sumw2();  ph = new PlotHisto(); ph->histo = setD_periodic_cVz2;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);  
-  
+  addPlot(HltPlots[index]);
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_periodic_cVz3 = new TH1F("hlt_setD_periodic_cVz3","Set D - VPD trigger PeriodicVz (Vz < 70)",500,-250.,250.);
@@ -1056,20 +1058,20 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   setD_periodic_cVz4 = new TH1F("hlt_setD_periodic_cVz4","Set D - VPD trigger PeriodicVz (Vz < 100, pTracks > 5)",500,-250.,250.);
   setD_periodic_cVz4->Sumw2();  ph = new PlotHisto(); ph->histo = setD_periodic_cVz4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   //accumulated
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_accumulated_cVz1 = new TH1F("hlt_setD_accumulated_cVz1","Set D - VPD trigger Accumulated Vz (no cuts)",500,-250.,250.);
   setD_accumulated_cVz1->Sumw2();  ph = new PlotHisto(); ph->histo = setD_accumulated_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_accumulated_cVz2 = new TH1F("hlt_setD_accumulated_cVz2","Set D - VPD trigger Accumulated Vz (Vz < 100)",500,-250.,250.);
   setD_accumulated_cVz2->Sumw2();  ph = new PlotHisto(); ph->histo = setD_accumulated_cVz2;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);  
-  
+  addPlot(HltPlots[index]);
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setD_accumulated_cVz3 = new TH1F("hlt_setD_accumulated_cVz3","Set D - VPD trigger Accumulated Vz (Vz < 70)",500,-250.,250.);
@@ -1091,13 +1093,13 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   setE_singlerun_cVz1 = new TH1F("hlt_setE_singlerun_cVz1","Set E - VPD trigger Single Run Vz (no cuts)",500,-250.,250.);
   setE_singlerun_cVz1->Sumw2();  ph = new PlotHisto(); ph->histo = setE_singlerun_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_singlerun_cVz2 = new TH1F("hlt_setE_singlerun_cVz2","Set E - VPD trigger Single Run Vz (Vr < 2, Vz < 70, pTracks > 5)",500,-250.,250.);
   setE_singlerun_cVz2->Sumw2();  ph = new PlotHisto(); ph->histo = setE_singlerun_cVz2;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);  
-  
+  addPlot(HltPlots[index]);
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_singlerun_cVz3 = new TH1F("hlt_setE_singlerun_cVz3","Set E - VPD trigger Single Run Vz (Vr < 2, pTracks > 5)",500,-250.,250.);
@@ -1109,20 +1111,20 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   setE_singlerun_cVz4 = new TH1F("hlt_setE_singlerun_cVz4","Set E - VPD trigger Single Run Vz (Vr > 2)",500,-250.,250.);
   setE_singlerun_cVz4->Sumw2();  ph = new PlotHisto(); ph->histo = setE_singlerun_cVz4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   //periodic
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_periodic_cVz1 = new TH1F("hlt_setE_periodic_cVz1","Set E - VPD trigger Periodic Vz (no cuts)",500,-250.,250.);
   setE_periodic_cVz1->Sumw2();  ph = new PlotHisto(); ph->histo = setE_periodic_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_periodic_cVz2 = new TH1F("hlt_setE_periodic_cVz2","Set E - VPD trigger Periodic Vz (Vr < 2, Vz < 70, pTracks > 5)",500,-250.,250.);
   setE_periodic_cVz2->Sumw2();  ph = new PlotHisto(); ph->histo = setE_periodic_cVz2;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);  
-  
+  addPlot(HltPlots[index]);
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_periodic_cVz3 = new TH1F("hlt_setE_periodic_cVz3","Set E - VPD trigger PeriodicVz (Vr < 2, pTracks > 5)",500,-250.,250.);
@@ -1134,20 +1136,20 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   setE_periodic_cVz4 = new TH1F("hlt_setE_periodic_cVz4","Set E - VPD trigger PeriodicVz (Vr > 2)",500,-250.,250.);
   setE_periodic_cVz4->Sumw2();  ph = new PlotHisto(); ph->histo = setE_periodic_cVz4;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-    
+
   //accumulated
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_accumulated_cVz1 = new TH1F("hlt_setE_accumulated_cVz1","Set E - VPD trigger Accumulated Vz (no cuts)",500,-250.,250.);
   setE_accumulated_cVz1->Sumw2();  ph = new PlotHisto(); ph->histo = setE_accumulated_cVz1;  HltPlots[index]->addHisto(ph);
   addPlot(HltPlots[index]);
-  
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_accumulated_cVz2 = new TH1F("hlt_setE_accumulated_cVz2","Set E - VPD trigger Accumulated Vz (Vr < 2, Vz < 70, pTracks > 5)",500,-250.,250.);
   setE_accumulated_cVz2->Sumw2();  ph = new PlotHisto(); ph->histo = setE_accumulated_cVz2;  HltPlots[index]->addHisto(ph);
-  addPlot(HltPlots[index]);  
-  
+  addPlot(HltPlots[index]);
+
   index++;
   HltPlots[index]->setDrawOpts((char*)"hist");
   setE_accumulated_cVz3 = new TH1F("hlt_setE_accumulated_cVz3","Set E - VPD trigger Accumulated Vz (Vr < 2, pTracks > 5)",500,-250.,250.);
@@ -1165,7 +1167,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
 //######### End of SET E - VPD_TRIGGERED VERTEX Z HISTOS #####
 
 
-  LOG(DBG, "HERE");    
+  LOG(DBG, "HERE");
   /*
     h = new TH3F("hlt_hbt3dnum","hbt3dnum",50,0,0.5,50,0,0.5,50,0,0.5);
     h->Sumw2();
@@ -1179,14 +1181,14 @@ void hltBuilder::initialize(int argc, char *argv[]) {
     hbt->addHisto(ph);
   */
 
-  ///////////////////////////////////////////////////////////////////////  
-  //------------Set Marker---------------//   
+  ///////////////////////////////////////////////////////////////////////
+  //------------Set Marker---------------//
   piplus->SetLineColor(2);
   piplus->SetMarkerStyle(20);
   piplus->SetMarkerSize(1.0);
   piplus->SetMarkerColor(2);
 
-  piminus->SetLineColor(3); 
+  piminus->SetLineColor(3);
   piminus->SetMarkerStyle(21);
   piminus->SetMarkerSize(1.0);
   piminus->SetMarkerColor(3);
@@ -1196,7 +1198,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   kplus->SetMarkerSize(1.0);
   kplus->SetMarkerColor(2);
 
-  kminus->SetLineColor(5); 
+  kminus->SetLineColor(5);
   kminus->SetMarkerStyle(21);
   kminus->SetMarkerSize(1.0);
   kminus->SetMarkerColor(5);
@@ -1210,10 +1212,10 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   pminus->SetMarkerStyle(21);
   pminus->SetMarkerSize(1.0);
   pminus->SetMarkerColor(7);
-     
+
   Yield->SetLineColor(2);
   corrected_Yield->SetLineColor(4);
-     
+
   LOG(DBG, "HERE");
 
   hbtnum->SetLineColor(2);
@@ -1232,8 +1234,8 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   Vxy1->GetXaxis()->SetTitle("Primary Vx");
   Vxy1->GetYaxis()->SetTitle("Primary Vy");
   Mult1->GetXaxis()->SetTitle("Multiplicity");
-  Eta1->GetXaxis()->SetTitle("Pseudorapidity");  
-  Timevsmultiplicity->GetXaxis()->SetTitle("Multiplicity");     
+  Eta1->GetXaxis()->SetTitle("Pseudorapidity");
+  Timevsmultiplicity->GetXaxis()->SetTitle("Multiplicity");
   Timevsmultiplicity->GetYaxis()->SetTitle("Time (ms)");
   Ratevsmultiplicity->GetXaxis()->SetTitle("Multiplicity");
   Ratevsmultiplicity->GetYaxis()->SetTitle("rate/event (Hz)");
@@ -1254,7 +1256,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   LOG(DBG, "HERE");
 
   resolution->SetTitle("Single Run v2 resolution") ;
-     
+
   corrected_v2_pt->GetXaxis()->SetTitle("Pt GeV") ;
   corrected_v2_pt->GetYaxis()->SetTitle("v2") ;
   corrected_v2_pt->GetYaxis()->CenterTitle();
@@ -1263,7 +1265,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   corrected_v2_pt->SetMinimum(-0.1);
   corrected_v2_pt->SetMaximum(0.6);
   //corrected_v2ptCounter->GetXaxis()->SetTitle("Pt GeV") ;
-  //corrected_v2ptCounter->SetNamey("v2 vs pt ");   
+  //corrected_v2ptCounter->SetNamey("v2 vs pt ");
   //corrected_v2ptCounter->SetTitle("v2 vs pt");
 
   LOG(DBG, "HERE");
@@ -1280,7 +1282,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   kminus->GetXaxis()->SetTitle("Pt GeV") ;
   pplus->GetXaxis()->SetTitle("Pt GeV") ;
   pminus->GetXaxis()->SetTitle("Pt GeV") ;
-     
+
   piplus->SetTitle("Single Run Pi K P pt distrbution") ;
   piplus->SetName("Pt spectra") ;
   piminus->SetTitle("Single Run Pi K P pt distrbution") ;
@@ -1298,10 +1300,10 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   corrected_Yield->GetXaxis()->SetTitle("Pt GeV") ;
   Yield->SetTitle("Single Run Yield and corrected_Yield") ;
   corrected_Yield->SetTitle("Single Run Yield and corrected_Yield") ;
- 
+
 
   LOG(DBG, "HERE");
-     
+
   hbtnum->SetTitle("Single Run HBT num and den") ;
   hbtnum->SetName("HBTa") ;
   hbtnum->GetXaxis()->SetTitle("Qinv (GeV/c)");
@@ -1312,18 +1314,18 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   hbtCF_qinv->SetName("HBT");
   hbtCF_qinv->GetXaxis()->SetTitle("Qinv (GeV/c)");
   hbtCF_qinv->GetYaxis()->SetTitle("C(Qinv)");
-     
+
   ///////////////////////////////////////////////////////////////////////
 
 //******************* Set Styles for Cumulative Analysis Histos ******************
 
-  //------------Set Marker---------------//   
+  //------------Set Marker---------------//
   tot_piplus->SetLineColor(2);
   tot_piplus->SetMarkerStyle(20);
   tot_piplus->SetMarkerSize(1.0);
   tot_piplus->SetMarkerColor(2);
 
-  tot_piminus->SetLineColor(3); 
+  tot_piminus->SetLineColor(3);
   tot_piminus->SetMarkerStyle(21);
   tot_piminus->SetMarkerSize(1.0);
   tot_piminus->SetMarkerColor(3);
@@ -1333,7 +1335,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_kplus->SetMarkerSize(1.0);
   tot_kplus->SetMarkerColor(2);
 
-  tot_kminus->SetLineColor(5); 
+  tot_kminus->SetLineColor(5);
   tot_kminus->SetMarkerStyle(21);
   tot_kminus->SetMarkerSize(1.0);
   tot_kminus->SetMarkerColor(5);
@@ -1347,10 +1349,10 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_pminus->SetMarkerStyle(21);
   tot_pminus->SetMarkerSize(1.0);
   tot_pminus->SetMarkerColor(7);
-     
+
   tot_Yield->SetLineColor(2);
   tot_corrected_Yield->SetLineColor(4);
-     
+
   LOG(DBG, "HERE");
 
   tot_hbtnum->SetLineColor(2);
@@ -1369,8 +1371,8 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   //tot_Vxy1->GetXaxis()->SetTitle("Primary Vx");
   //tot_Vxy1->GetYaxis()->SetTitle("Primary Vy");
   //tot_Mult1->GetXaxis()->SetTitle("Multiplicity");
-  //tot_Eta1->GetXaxis()->SetTitle("Pseudorapidity");  
-  tot_Timevsmultiplicity->GetXaxis()->SetTitle("Multiplicity");     
+  //tot_Eta1->GetXaxis()->SetTitle("Pseudorapidity");
+  tot_Timevsmultiplicity->GetXaxis()->SetTitle("Multiplicity");
   tot_Timevsmultiplicity->GetYaxis()->SetTitle("Time (ms)");
   tot_Ratevsmultiplicity->GetXaxis()->SetTitle("Multiplicity");
   tot_Ratevsmultiplicity->GetYaxis()->SetTitle("rate/event (Hz)");
@@ -1391,7 +1393,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   LOG(DBG, "HERE");
 
   tot_resolution->SetTitle("Accumulated v2 resolution") ;
-     
+
   tot_corrected_v2_pt->GetXaxis()->SetTitle("Pt GeV") ;
   tot_corrected_v2_pt->GetYaxis()->SetTitle("v2") ;
   tot_corrected_v2_pt->GetYaxis()->CenterTitle();
@@ -1400,7 +1402,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_corrected_v2_pt->SetMinimum(-0.1);
   tot_corrected_v2_pt->SetMaximum(0.6);
   //tot_corrected_v2ptCounter->GetXaxis()->SetTitle("Pt GeV") ;
-  //tot_corrected_v2ptCounter->SetNamey("v2 vs pt ");   
+  //tot_corrected_v2ptCounter->SetNamey("v2 vs pt ");
   //tot_corrected_v2ptCounter->SetTitle("v2 vs pt");
 
   LOG(DBG, "HERE");
@@ -1417,7 +1419,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_kminus->GetXaxis()->SetTitle("Pt GeV") ;
   tot_pplus->GetXaxis()->SetTitle("Pt GeV") ;
   tot_pminus->GetXaxis()->SetTitle("Pt GeV") ;
-     
+
   tot_piplus->SetTitle("Accumulated Pi K P pt distrbution") ;
   tot_piplus->SetName("tot_Pt spectra") ;
   tot_piminus->SetTitle("Accumulated Pi K P pt distrbution") ;
@@ -1435,10 +1437,10 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_corrected_Yield->GetXaxis()->SetTitle("Pt GeV") ;
   tot_Yield->SetTitle("Accumulated Yield and corrected_Yield") ;
   tot_corrected_Yield->SetTitle("Accumulated Yield and corrected_Yield") ;
- 
+
 
   LOG(DBG, "HERE");
-     
+
   tot_hbtnum->SetTitle("Accumulated HBT num and den") ;
   tot_hbtnum->SetName("tot_HBTa") ;
   tot_hbtnum->GetXaxis()->SetTitle("Qinv (GeV/c)");
@@ -1449,7 +1451,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   tot_hbtCF_qinv->SetName("tot_HBT");
   tot_hbtCF_qinv->GetXaxis()->SetTitle("Qinv (GeV/c)");
   tot_hbtCF_qinv->GetYaxis()->SetTitle("C(Qinv)");
-     
+
   ///////////////////////////////////////////////////////////////////////
 
 //****************** End Set Styles for Cumulative Analysis Histos ***************
@@ -1476,7 +1478,7 @@ void hltBuilder::initialize(int argc, char *argv[]) {
     }
   }
   printf("n\n");
-  
+
   //set cut information here
   //vertexCuts
   eventCuts.zvertexMin = -75.0;		eventCuts.zvertexMax = 75.0;
@@ -1485,43 +1487,43 @@ void hltBuilder::initialize(int argc, char *argv[]) {
   eventCuts.BEMCwestEnergyMin = 20.;	eventCuts.BEMCwestEnergyMax = 1000000.;
   eventCuts.BEMC_EastWestDiffMin=0;	eventCuts.BEMC_EastWestDiffMax=6;
   eventCuts.multMin = 17.;  		eventCuts.multMax = 10000.;
-  
+
   multTrackCuts.nHitsMin = 20;   	multTrackCuts.nHitsMax = 48.; //I think max is ~48.
   multTrackCuts.dcaMin = 1.0e-05;	multTrackCuts.dcaMax = 3.;
   multTrackCuts.ptMin = 0.1;		multTrackCuts.ptMax = 100.;
   multTrackCuts.etaMin = -1.;		multTrackCuts.etaMax = 1.;
   multTrackCuts.rapMin = 1.;		multTrackCuts.rapMax = 0.; //no rap cut for mult.
-  
+
   v2ptTrackCuts.nHitsMin = 20;   	v2ptTrackCuts.nHitsMax = 48.; //I think max is ~48.
   v2ptTrackCuts.dcaMin = 1.0e-05;	v2ptTrackCuts.dcaMax = 3.;
   v2ptTrackCuts.ptMin = 0.1;		v2ptTrackCuts.ptMax = 10.;
   v2ptTrackCuts.etaMin = -1.;		v2ptTrackCuts.etaMax = 1.; //eta cut for v2(pt)
   v2ptTrackCuts.rapMin = 1.;		v2ptTrackCuts.rapMax = 0.; //should it be a rap cut?
-      
+
   ptSpectraTrackCuts.nHitsMin = 20;   	ptSpectraTrackCuts.nHitsMax = 48.; //I think max is ~48.
   ptSpectraTrackCuts.dcaMin = 1.0e-05;	ptSpectraTrackCuts.dcaMax = 3.;
   ptSpectraTrackCuts.ptMin = 0.1;	ptSpectraTrackCuts.ptMax = 10000.;
   ptSpectraTrackCuts.etaMin = -1.;	ptSpectraTrackCuts.etaMax = 1.;  //is it rap or eta cut for ptspectra
-  ptSpectraTrackCuts.rapMin = -0.5;	ptSpectraTrackCuts.rapMax = 0.5; 
+  ptSpectraTrackCuts.rapMin = -0.5;	ptSpectraTrackCuts.rapMax = 0.5;
   //hbtnHitsMin was 15
   hbtTrackCuts.nHitsMin = 25;   	hbtTrackCuts.nHitsMax = 48.; //I think max is ~48.
   hbtTrackCuts.dcaMin = 1.0e-05;	hbtTrackCuts.dcaMax = 3.;
   hbtTrackCuts.ptMin = 0.17;		hbtTrackCuts.ptMax = 0.35;
   hbtTrackCuts.etaMin = 1.;		hbtTrackCuts.etaMax = -1.; //no eta cut for hbt
   hbtTrackCuts.rapMin = -0.5;		hbtTrackCuts.rapMax = 0.5;
- 
+
   LOG(DBG, "ERE");
 
 };
-  
+
   void hltBuilder::startrun(daqReader *rdr) {
       //printf("hello there. This is startrun\n");
       cVz1->Reset();  cVz2->Reset();  cVz3->Reset();  cVz4->Reset();
       cVx1->Reset();  cVx2->Reset();  cVx3->Reset();
       cVy1->Reset();  cVy2->Reset();  cVy3->Reset();
       cVr1->Reset();  cVr2->Reset();  cVr3->Reset();  cVr4->Reset();
-      cM1->Reset();  cM2->Reset();  cM3->Reset();  cM4->Reset();      
-      
+      cM1->Reset();  cM2->Reset();  cM3->Reset();  cM4->Reset();
+
       Vz1->Reset();  Vz2->Reset();  Vz3->Reset();  Vz4->Reset();
       Vx1->Reset();  Vx2->Reset();  Vx3->Reset();  Vx4->Reset();
       Vy1->Reset();  Vy2->Reset();  Vy3->Reset();  Vy4->Reset();
@@ -1530,11 +1532,11 @@ void hltBuilder::initialize(int argc, char *argv[]) {
       Mult1->Reset();  Mult2->Reset();  Mult3->Reset();  Mult4->Reset();
       Eta1->Reset();  Eta2->Reset();  Eta3->Reset();  Eta4->Reset();
       Timevsmultiplicity->Reset();
-      Ratevsmultiplicity->Reset();     
+      Ratevsmultiplicity->Reset();
       v2_pt->Reset();
       //v2ptCounter->Reset();
-      resolution->Reset(); 
-      corrected_v2_pt->Reset();   
+      resolution->Reset();
+      corrected_v2_pt->Reset();
       //corrected_v2ptCounter->Reset();
       dedx->Reset();
       piplus->Reset();
@@ -1553,17 +1555,17 @@ void hltBuilder::initialize(int argc, char *argv[]) {
       BEMC_1b->Reset();	BEMC_2b->Reset(); BEMC_3b->Reset(); BEMC_4b->Reset();
       BEMC_1c->Reset();	BEMC_2c->Reset(); BEMC_3c->Reset(); BEMC_4c->Reset();
       BEMC_1d->Reset();	BEMC_2d->Reset(); BEMC_3d->Reset(); BEMC_4d->Reset();
-      
-      
+
+
       setD_singlerun_cVz1->Reset();  setD_singlerun_cVz2->Reset();  setD_singlerun_cVz3->Reset();  setD_singlerun_cVz4->Reset();
       setE_singlerun_cVz1->Reset();  setE_singlerun_cVz2->Reset();  setE_singlerun_cVz3->Reset();  setE_singlerun_cVz4->Reset();
-      
-      
+
+
      //****************** New Periodic histos for Vertex Method of counting - added Apr 27, 2010
      //Bool_t PeriodicConditionIsTrue = kFALSE;  //don't reset unless its time
      //gettimeofday(&PeriodicResetTest,NULL);
      //timersub(&PeriodicResetTest,&PeriodicStart,&PeriodicResult);
-       //if( PeriodicConditionIsTrue ) 
+       //if( PeriodicConditionIsTrue )
        //printf("start 1 hour loop\n");
        //while( double(PeriodicResult.tv_sec)  < 10 ) { //3610.*1.) {
          //gettimeofday(&PeriodicResetTest,NULL);
@@ -1584,15 +1586,15 @@ void hltBuilder::initialize(int argc, char *argv[]) {
        periodic_cVr1->Reset();  periodic_cVr2->Reset();  periodic_cVr3->Reset();  periodic_cVr4->Reset();  //plot13-plot16
        periodic_cVxy1->Reset();  periodic_cVxy2->Reset();  periodic_cVxy3->Reset();  periodic_cVxy4->Reset();  //plot17-plot20
        periodic_cM1->Reset();  periodic_cM2->Reset();  periodic_cM3->Reset();  periodic_cM4->Reset();  //plot21-plot24
-       
+
        setD_periodic_cVz1->Reset();  setD_periodic_cVz2->Reset();  setD_periodic_cVz3->Reset();  setD_periodic_cVz4->Reset();
        setE_periodic_cVz1->Reset();  setE_periodic_cVz2->Reset();  setE_periodic_cVz3->Reset();  setE_periodic_cVz4->Reset();
-       
+
      }
      //**************** End new Periodic histos for Vertex Method of counting
 
      //printf("Starting run #%d\n",rdr->run);
-    
+
   };
 
   void hltBuilder::stoprun(daqReader *rdr) {
@@ -1600,11 +1602,11 @@ void hltBuilder::initialize(int argc, char *argv[]) {
 
         printf("Stopping run #%d\n",rdr->run);
   };
-  
+
 
 void hltBuilder::event(daqReader *rdr) {
-  
-//************************************** SET THE TRIGGER BIT HERE to min bias value *************  
+
+//************************************** SET THE TRIGGER BIT HERE to min bias value *************
 //We want all events right now (not just min-bias), min-bias is our main trigger.
   u_int trg = rdr->daqbits;
   //int minbias = 0x20;
@@ -1613,8 +1615,8 @@ void hltBuilder::event(daqReader *rdr) {
   if (trg & vpdtag) FILL_VPD_HISTOS = kTRUE;
   else FILL_VPD_HISTOS = kFALSE;
   //if (trg & minbias) { //start of check for minbias.
-//***********************************************************************************************  
-  
+//***********************************************************************************************
+
 
   //printf("Event %d/%d: 0x%x\n",rdr->event_number,rdr->seq,trg);
   //    for(int i=0;i<32;i++) {
@@ -1630,7 +1632,7 @@ void hltBuilder::event(daqReader *rdr) {
   //daq_dta *dd = rdr->det("l3")->get("legacy");
   daq_dta *dd = rdr->det("hlt")->get("gl3");
 
-  if (!dd) { 
+  if (!dd) {
     LOG(DBG, "No HLT in this event");
     //printf("The daq_dta objected was not initiated, the line daq_dta *dd = rdr->det->get ... did not work.\n");
     return;
@@ -1642,8 +1644,8 @@ void hltBuilder::event(daqReader *rdr) {
 
   int trkindx=0;
   //	int species = 8;  //initialized to 8 because this is a particle that is not a pion, kaon, or proton
-  //	bool FILL_NUMERATOR_SWITCH = false;	
-	
+  //	bool FILL_NUMERATOR_SWITCH = false;
+
   HLT_EVE  *hlt_eve ; HLT_TOF  *hlt_tof ; HLT_PVPD *hlt_pvpd ; HLT_EMC  *hlt_emc ; HLT_GT   *hlt_gt ;
   HLT_PT   *hlt_pt ;  HLT_NODE *hlt_node ; HLT_HIPT *hlt_hipt ;HLT_DIEP *hlt_diep ;HLT_HF *hlt_hf ;
 
@@ -1666,11 +1668,11 @@ void hltBuilder::event(daqReader *rdr) {
   //	  printf("sequence %d: gTracks %d: tofHits: %d: pvpdHits %d: eePairs %d: emcTowers %d: highPt %d : heavyFrag %d \n",rdr->seq, hlt_gt->nGlobalTracks, hlt_tof->nTofHits, hlt_pvpd->nPvpdHits, hlt_diep->nEPairs, hlt_emc->nEmcTowers, hlt_hipt->nHighPt, hlt_hf->nHeavyFragments) ;
   //	  printf("pTracks %d\n",hlt_pt->nPrimaryTracks);
 
-  for(int aloop=0; aloop<1 ;aloop++) {	  
+  for(int aloop=0; aloop<1 ;aloop++) {
 
     timeval start, stop, result;
     gettimeofday(&start,NULL);
-	  
+
     //FILL VertexZ HISTOGRAM WITH DEFAULT L3 Z VERTEX POSITION
     //Vz1->Fill(hlt_eve->vertexZ);
     //Vxy->Fill(hlt_eve->vertexX, hlt_eve->vertexY);
@@ -1694,7 +1696,7 @@ void hltBuilder::event(daqReader *rdr) {
     //These are the original cuts that used a square.  They now use Vr less than 2 cm.
     if( (fabs(hlt_eve->vertexZ) < 200) && (VrValue < 2) ) VzLT200_VxLT2_VyLT2_VERTEX = kTRUE;
     if( (fabs(hlt_eve->vertexZ) < 70 ) && (VrValue < 2) ) VzLT70_VxLT2_VyLT2_VERTEX = kTRUE;
-    if( (fabs(hlt_eve->vertexZ) < 70 ) && (VrValue > 2) )  VzLT70_VxGT2_VyGT2_VERTEX = kTRUE;    
+    if( (fabs(hlt_eve->vertexZ) < 70 ) && (VrValue > 2) )  VzLT70_VxGT2_VyGT2_VERTEX = kTRUE;
 //    if( (fabs(hlt_eve->vertexZ) < 200) && (fabs(hlt_eve->vertexX) < 2) && (fabs(hlt_eve->vertexY) < 2) ) VzLT200_VxLT2_VyLT2_VERTEX = kTRUE;
 //    if( (fabs(hlt_eve->vertexZ) < 70 ) && (fabs(hlt_eve->vertexX) < 2) && (fabs(hlt_eve->vertexY) < 2) ) VzLT70_VxLT2_VyLT2_VERTEX = kTRUE;
 //    if( (fabs(hlt_eve->vertexZ) < 70 ) && ((fabs(hlt_eve->vertexX) > 2) || (fabs(hlt_eve->vertexY) > 2)) ) VzLT70_VxGT2_VyGT2_VERTEX = kTRUE;
@@ -1711,15 +1713,15 @@ void hltBuilder::event(daqReader *rdr) {
       if( VzLT70_VxGT2_VyGT2_VERTEX ) Eta4->Fill(getEta(&ptrack));
       if ( trackCut(&ptrack, hlt_eve, &multTrackCuts) ) {
 	int species = getPID(&ptrack); //ptrack.pt, ptrack.dedx, ptrack.q, ptrack.tanl);
-	if( (species != 0) && (species != 8) && (species != 7) ) { 
+	if( (species != 0) && (species != 8) && (species != 7) ) {
 	  MULTIPLICITY++;
-	  dedx->Fill(ptrack.pt,ptrack.dedx);                                
-	  tot_dedx->Fill(ptrack.pt,ptrack.dedx);                                
+	  dedx->Fill(ptrack.pt,ptrack.dedx);
+	  tot_dedx->Fill(ptrack.pt,ptrack.dedx);
 	  //				mydedxfile << ptrack.pt << "    " << ptrack.pt*ptrack.tanl << "    " << sqrt(pow(ptrack.pt,2)+pow(ptrack.pt*ptrack.tanl,2)) << "     " << ptrack.dedx << std::endl;
 	}
-      }		
+      }
     }
-    //((TH1F *)getPlotByIndex(1)->getHisto(0)->histo)->Fill(MULTIPLICITY);	
+    //((TH1F *)getPlotByIndex(1)->getHisto(0)->histo)->Fill(MULTIPLICITY);
     //OPENING A FILE TO WRITE DEDX INFO. (ITS FASTER THIS WAY.)
     //	  ofstream mydedxfile;
     //	  mydedxfile.open("mydedxfile.dat",std::ios::app);
@@ -1738,15 +1740,15 @@ if(FILL_VPD_HISTOS) {
     if( hlt_pt->nPrimaryTracks > 5 ) {
       setD_singlerun_cVz4->Fill(hlt_eve->vertexZ);
       setD_periodic_cVz4->Fill(hlt_eve->vertexZ);
-      setD_accumulated_cVz4->Fill(hlt_eve->vertexZ);  
-    }  
+      setD_accumulated_cVz4->Fill(hlt_eve->vertexZ);
+    }
   }
   if(fabs(hlt_eve->vertexZ) < 70) {
     setD_singlerun_cVz3->Fill(hlt_eve->vertexZ);
     setD_periodic_cVz3->Fill(hlt_eve->vertexZ);
     setD_accumulated_cVz3->Fill(hlt_eve->vertexZ);
   }
-}  
+}
 
 //no cuts on Vr, Vz, or M
 cVz1->Fill(hlt_eve->vertexZ);
@@ -1843,7 +1845,7 @@ if ( ! VrLT2_VERTEX ) {
 
 //******************End of Fill Histos for Vertex Method of Counting Good Events *********************
 
-	  
+
     //FILL BEMC PLOT HISTOS
     int BEMCeastEnergy = 0;
     int  BEMCwestEnergy = 0;
@@ -1853,7 +1855,7 @@ if ( ! VrLT2_VERTEX ) {
       if(hlt_emc->emcTower[i].eta <=0) BEMCwestEnergy += hlt_emc->emcTower[i].energy;
       //float phi   = hlt_emc->emcTower[i].phi;
       //float  eta   = hlt_emc->emcTower[i].eta;
-      //		  float  z     = hlt_emc->emcTower[i].z; 
+      //		  float  z     = hlt_emc->emcTower[i].z;
       //int softId  = hlt_emc->emcTower[i].softId;
       //int daqId   = hlt_emc->emcTower[i].daqId;
 
@@ -1874,7 +1876,7 @@ if ( ! VrLT2_VERTEX ) {
       if( (BEMCeastEnergy > 20) && (BEMCwestEnergy > 20) && (fabs(BEMCeastEnergy-BEMCwestEnergy) < 6) ) eGT20_wGT20_diffLT6_BEMC = kTRUE;
       //if( (BEMCeastEnergy > 20) && (BEMCwestEnergy > 20) && (fabs(BEMCeastEnergy-BEMCwestEnergy) < 6) (BBC cut not implemented)  eGT20_wGT20_diffLT6_bbcGT100_BEMC = kTRUE;
     }
-	  
+
     //FILL BEMC PLOTS
     if( NO_CUTS_BEMC ) {
       if (NO_CUTS_VERTEX ) {
@@ -1931,7 +1933,7 @@ if ( ! VrLT2_VERTEX ) {
       if( VzLT70_VxGT2_VyGT2_VERTEX ) {
 	BEMC_4d->Fill(BEMCwestEnergy, BEMCeastEnergy);
       }
-    }	  	  
+    }
     if( eGT20_wGT20_BEMC ) {
       if (NO_CUTS_VERTEX ) {
 	BEMC_1b->Fill(BEMCwestEnergy, BEMCeastEnergy);
@@ -1945,7 +1947,7 @@ if ( ! VrLT2_VERTEX ) {
       if( VzLT70_VxGT2_VyGT2_VERTEX ) {
 	BEMC_4b->Fill(BEMCwestEnergy, BEMCeastEnergy);
       }
-    }	  
+    }
     if( eGT20_wGT20_diffLT6_BEMC ) {
       if (NO_CUTS_VERTEX ) {
 	BEMC_1c->Fill(BEMCwestEnergy, BEMCeastEnergy);
@@ -1959,8 +1961,8 @@ if ( ! VrLT2_VERTEX ) {
       if( VzLT70_VxGT2_VyGT2_VERTEX ) {
 	BEMC_4c->Fill(BEMCwestEnergy, BEMCeastEnergy);
       }
-    }	  
-	    
+    }
+
     //(TH2F*)getPlotByIndex(7)->getHisto(4)->histo->Fill(BEMCwestEnergy,BEMCeastEnergy);
     //if( BemcEventCut(BEMCeastEnergy, BEMCwestEnergy, &eventCuts) )
     //  (TH2F*)getPlotByIndex(7)->getHisto(6)->histo->Fill(BEMCwestEnergy,BEMCeastEnergy); //Bad event
@@ -1970,12 +1972,12 @@ if ( ! VrLT2_VERTEX ) {
     if ( vertexEventCut(hlt_eve, &eventCuts) ) { continue; }
     if ( multiplicityEventCut(MULTIPLICITY, &eventCuts) ) continue;
     //Mult1->Fill(MULTIPLICITY);
-	  
+
     //2ND ORDER REACTION PLANE VECTOR (EVENT AND 2 RANDOM SUBEVENTS)
     float Qx = 0.;	float Qy = 0.;
     float Qax = 0.;	float Qay = 0.;
     float Qbx = 0.;	float Qby = 0.;
-    float weight = 0.;	
+    float weight = 0.;
     if( V2CALC ) {
       for(u_int i=0; i < hlt_pt->nPrimaryTracks; i++) {
 	hlt_track ptrack = hlt_pt->primaryTrack[i];
@@ -2000,7 +2002,7 @@ if ( ! VrLT2_VERTEX ) {
       }
     } //END if(V2CALC)
     //printf("got RP vector\n");
-	
+
     //V2(pt) NUMERATOR, PT SPECTRA, HBT NUMERATOR, HBT DENOMINATOR
     float Ux = 0.;	float Uy = 0.;
     for(u_int i=0; i < hlt_pt->nPrimaryTracks; i++) {
@@ -2016,7 +2018,7 @@ if ( ! VrLT2_VERTEX ) {
 	    v2_pt->Fill(ptrack.pt,(Ux*(Qx-Ux)+Uy*(Qy-Uy))/sqrt((Ux*Ux+Uy*Uy)*((Qx-Ux)*(Qx-Ux)+(Qy-Uy)*(Qy-Uy))) ) ;
 	    corrected_v2_pt->Fill(ptrack.pt, (Ux*(Qx-Ux)+Uy*(Qy-Uy))/sqrt((Ux*Ux+Uy*Uy)*((Qx-Ux)*(Qx-Ux)+(Qy-Uy)*(Qy-Uy))) );
 	    tot_v2_pt->Fill(ptrack.pt,(Ux*(Qx-Ux)+Uy*(Qy-Uy))/sqrt((Ux*Ux+Uy*Uy)*((Qx-Ux)*(Qx-Ux)+(Qy-Uy)*(Qy-Uy))) ) ;
-	    tot_corrected_v2_pt->Fill(ptrack.pt, (Ux*(Qx-Ux)+Uy*(Qy-Uy))/sqrt((Ux*Ux+Uy*Uy)*((Qx-Ux)*(Qx-Ux)+(Qy-Uy)*(Qy-Uy))) );	  } 
+	    tot_corrected_v2_pt->Fill(ptrack.pt, (Ux*(Qx-Ux)+Uy*(Qy-Uy))/sqrt((Ux*Ux+Uy*Uy)*((Qx-Ux)*(Qx-Ux)+(Qy-Uy)*(Qy-Uy))) );	  }
 	  else {
 	    v2_pt->Fill(ptrack.pt,(Ux*Qx+Uy*Qy)/sqrt((Ux*Ux+Uy*Uy)*(Qx*Qx+Qy*Qy)));
 	    corrected_v2_pt->Fill(ptrack.pt,(Ux*Qx+Uy*Qy)/sqrt((Ux*Ux+Uy*Uy)*(Qx*Qx+Qy*Qy)));
@@ -2069,7 +2071,7 @@ if ( ! VrLT2_VERTEX ) {
 	updateCurrentHbtEvent(&hbt_current, MULTIPLICITY, &ptrack, hlt_eve, trkindx);  //add track to current hbt event
 	trkindx++;
       } //end of hbt numerator code block
-		
+
       //HBT denominator
       if ( trackCut(&ptrack, hlt_eve, &hbtTrackCuts) && ((species == 1) || (species == 2)) && HBTCALC) { //track cut on first particle
 	mmb = getMultMixingBin(MULTIPLICITY);  //returns 999999999 (nine nine's) if out of range
@@ -2105,20 +2107,20 @@ if ( ! VrLT2_VERTEX ) {
       } //end of hbt denominator code block
 
     } //end of loop over primary tracks
-	
-    //V2 DENOMINATOR (THE RESOLUTION FACTOR) 
+
+    //V2 DENOMINATOR (THE RESOLUTION FACTOR)
     if( V2CALC ) {
       float resolutionFactor = (Qax*Qbx+Qay*Qby)/sqrt((Qax*Qax+Qay*Qay)*(Qbx*Qbx+Qby*Qby)) ;
       //resolution->Fill(resolutionFactor,resolutionFactor);
       resolution->Fill(0.,fabs(resolutionFactor)); //2.*sqrt(resolutionFactor*resolutionFactor));  //************I need to check this math more carefully.
       tot_resolution->Fill(0.,fabs(resolutionFactor)); //2.*sqrt(resolutionFactor*resolutionFactor));  //************I need to check this math more carefully.
     }
-	
+
     //UPDATE THE HBT BUFFER MAYBE...
     if( HBTCALC ) {
       if( getUpdateSwitch() ) {
 	//printf("updating HbtEventBuffer\n");
-	updateHbtEventBuffer(vmb, mmb, &hbt_current); 
+	updateHbtEventBuffer(vmb, mmb, &hbt_current);
       } //else printf("NOT updat(ing)HbtEventBuffer()\n");
     }
 
@@ -2126,9 +2128,9 @@ if ( ! VrLT2_VERTEX ) {
     computeYieldsHistogram();
     computeV2Corrected();
     computeHbtCorrelationFunction();
-	
+
     //	mydedxfile.close();
-	
+
     gettimeofday(&stop,NULL);
     timersub(&stop,&start,&result);
     Timevsmultiplicity->Fill(float(MULTIPLICITY),float(result.tv_usec)/1000.);  //Convert time to milliseconds
@@ -2152,7 +2154,7 @@ if ( ! VrLT2_VERTEX ) {
 
   int hltBuilder::selectRun(daqReader *rdr) {
     return 1;
-  };  
+  };
 
   int hltBuilder::getPID(hlt_track *track) { //double Pt, double dEdx, int charge, double Tanl) {
     //The function returns a number to identify each particle according to the following codes
@@ -2189,8 +2191,8 @@ double ecutmax = (0.4/1.95*log(Pt)+2.9)/1000000.;
 double ecutmin = (0.4/1.95*log(Pt)+2.5)/1000000.;
 double pikline = (-0.3*log(0.2*Pt)/Pt+1.7)/1000000.;
 double kpline = (-1.9*log(1.05*Pt)/Pt+3.3)/1000000.;
-  
-//These functions optimized for run 9 pp data  
+
+//These functions optimized for run 9 pp data
 //double ecutmax = (0.4/1.95*log(Pt)+3.1)/1000000.;
 //double ecutmin = (0.4/1.95*log(Pt)+2.7)/1000000.;
 //double pikline = (-0.3*log(0.2*Pt)/Pt+1.7)/1000000.;
@@ -2212,9 +2214,9 @@ double kpline = (-1.9*log(1.05*Pt)/Pt+3.3)/1000000.;
 	if(charge < 0) return 6;  //pbar
     }
     //currently no cut on deuterons, they are included in the protons
-    
 
-    //The functions used to separate dEdx bands are found empirically using 9gev AuAu data from run 8.    
+
+    //The functions used to separate dEdx bands are found empirically using 9gev AuAu data from run 8.
     if((dEdx > (0.4/1.95*log(Pt)+3.4-0.1)*1.0e-06) && (dEdx < (0.4/1.95*log(Pt)+3.8)*1.0e-06)) return 0;  //e+ or e-
     if(dEdx < (-0.35*log(0.2*Pt)/Pt+2.7)/1000000.) {
 	if(charge > 0) return 1;  //pi+
@@ -2253,7 +2255,7 @@ double kpline = (-1.9*log(1.05*Pt)/Pt+3.3)/1000000.;
   };
 
   //THIS FUNCTION COMPUTES THE QOUT HBT COMPONENT
-  //  float getQout(float px1, float px2, float py1, float py2) {  
+  //  float getQout(float px1, float px2, float py1, float py2) {
   float hltBuilder::getQout(hlt_track *trackA, hlt_track *trackB) {
        float px1 = trackA->pt*cos(trackA->psi);
        float py1 = trackA->pt*sin(trackA->psi);
@@ -2281,7 +2283,7 @@ double kpline = (-1.9*log(1.05*Pt)/Pt+3.3)/1000000.;
        float k2 = (dx*xt+dy*yt);
        return (k2/k1); //qout
   };
-  
+
   //THIS FUNCTION COMPUTES THE QSIDE HBT COMPONENT
   //  float getQside(float px1, float px2, float py1, float py2) {
   float hltBuilder::getQside(hlt_track *trackA, hlt_track *trackB) {
@@ -2305,7 +2307,7 @@ double kpline = (-1.9*log(1.05*Pt)/Pt+3.3)/1000000.;
        float k1 = sqrt(xt*xt+yt*yt);
        return 2.0*(px1*py2-px2*py1)/k1; //qside
   };
-    
+
   //THIS FUNCTION COMPUTES THE QLONG HBT COMPONENT
   //  float getQlong(float pz1, float pz2, float E1, float E2) {
   float hltBuilder::getQlong(hlt_track *trackA, hlt_track *trackB) {
@@ -2384,22 +2386,22 @@ Bool_t hltBuilder::trackCut(hlt_track *track, HLT_EVE *eve, trackCut_info *cut) 
   Bool_t Pass = kTRUE;
   if ( cut->nHitsMax <= cut->nHitsMin ) Pass = kTRUE;
   else if ( (track->nHits < cut->nHitsMin ) || (track->nHits > cut->nHitsMax) ) return kFALSE;
-  
+
   if ( cut->dcaMax <= cut->dcaMin ) Pass = kTRUE;
   else if ( (getDCA(track, eve) < cut->dcaMin) || (getDCA(track, eve) > cut->dcaMax) ) return kFALSE;
 
   if ( cut->ptMax <= cut->ptMin ) Pass = kTRUE;
   else if ( (track->pt < cut->ptMin) || (track->pt > cut->ptMax) ) return kFALSE;
-  
+
   if ( cut->etaMax <= cut->etaMin ) Pass = kTRUE;
   else if ( (getEta(track) < cut->etaMin) || (getEta(track) > cut->etaMax) ) return kFALSE;
-  
+
   int species = getPID(track); //track->pt, track->dedx, track->q, track->tanl);
   float rap = getRap(track, species);
-  
+
   if ( cut->rapMax <= cut->rapMin ) Pass = kTRUE;
   else if ( (rap < cut->rapMin) || (rap > cut->rapMax) ) return kFALSE;
-  
+
   //NOTE:  Do PID cuts separately.
   return Pass;
 };
@@ -2408,22 +2410,22 @@ Bool_t trackCut(hlt_track track, HLT_EVE *eve, trackCut_info cut) {
   Bool_t Pass = kTRUE;
   if ( cut.nHitsMax <= cut.nHitsMin ) Pass = kTRUE;
   else if ( (track.nHits < cut.nHitsMin ) || (track.nHits > cut.nHitsMax) ) return kFALSE;
-  
+
   if ( cut.dcaMax <= cut.dcaMin ) Pass = kTRUE;
   else if ( (getDCA(track, eve) < cut.dcaMin) || (getDCA(track, eve) > cut.dcaMax) ) return kFALSE;
 
   if ( cut.ptMax <= cut.ptMin ) Pass = kTRUE;
   else if ( (track.pt < cut.ptMin) || (track.pt > cut.ptMax) ) return kFALSE;
-  
+
   if ( cut.etaMax <= cut.etaMin ) Pass = kTRUE;
   else if ( (getEta(track) < cut.etaMin) || (getEta(track) > cut.etaMax) ) return kFALSE;
-  
+
   int species = getPID(&track); //track.pt, track.dedx, track.q, track.tanl);
   float rap = getRap(track, species);
-  
+
   if ( cut.rapMax <= cut.rapMin ) Pass = kTRUE;
   else if ( (rap < cut.rapMin) || (rap > cut.rapMax) ) return kFALSE;
-  
+
   //NOTE:  Do PID cuts separately.
   return Pass;
 };
@@ -2437,7 +2439,7 @@ Bool_t hltBuilder::dipAngleCut(hlt_track *trackA, hlt_track *trackB) {
   float pyB = trackB->pt*sin(trackB->psi);
   float pzB = trackB->pt*trackB->tanl;
   float pA = sqrt(pxA*pxA+pyA*pyA+pzA*pzA);
-  float pB = sqrt(pxB*pxB+pyB*pyB+pzB*pzB);  
+  float pB = sqrt(pxB*pxB+pyB*pyB+pzB*pzB);
   float dipAngleMax = 0.04;
   return ((Bool_t)( acos( (sqrt(pxA*pxA+pyA*pyA)*sqrt(pxB*pxB+pyB*pyB) + pzA*pzB)
 		   /fabs(pA*pB)) < dipAngleMax ));
@@ -2451,7 +2453,7 @@ Bool_t hltBuilder::dipAngleCut(hlt_track *trackA, float *trackB) {
   float pyB = trackB[1]; //trackB.pt*sin(trackB.psi);
   float pzB = trackB[2]; //trackB.pt*trackB.tanl;
   float pA = sqrt(pxA*pxA+pyA*pyA+pzA*pzA);
-  float pB = sqrt(pxB*pxB+pyB*pyB+pzB*pzB);  
+  float pB = sqrt(pxB*pxB+pyB*pyB+pzB*pzB);
   float dipAngleMax = 0.04;
   return ((Bool_t)( acos( (sqrt(pxA*pxA+pyA*pyA)*sqrt(pxB*pxB+pyB*pyB) + pzA*pzB)
 		   /fabs(pA*pB)) < dipAngleMax ));
@@ -2522,7 +2524,7 @@ void hltBuilder::updateHbtEventBuffer(int vmb,int mmb, hbt_event_info *hbt_curre
     }
   }//end of loop over hbt_buffer[Nhbtmixing-1] down to hbt_buffer[1]
   //Now assign hbt_buffer[0] to be equal to the current buffer for the next event.
-  hbt_buffer[0][vmb][mmb].mult = hbt_current->mult;  
+  hbt_buffer[0][vmb][mmb].mult = hbt_current->mult;
   hbt_buffer[0][vmb][mmb].zvertex = hbt_current->zvertex;
   hbt_buffer[0][vmb][mmb].ntracks = hbt_current->ntracks;
   for(int j=0;j<hbt_current->ntracks;j++) {
@@ -2558,7 +2560,7 @@ float getEta(hlt_track track) {
 };
 
 float getDCA(hlt_track track, HLT_EVE *eve) {
-  float dca = sqrt(pow(eve->vertexZ - track.z0,2) 
+  float dca = sqrt(pow(eve->vertexZ - track.z0,2)
   	         + pow(eve->vertexX - track.r0*cos(track.phi0),2)
 		 + pow(eve->vertexY - track.r0*sin(track.phi0),2));
   return dca;
@@ -2586,7 +2588,7 @@ float hltBuilder::getEta(hlt_track *track) {
 };
 
 float hltBuilder::getDCA(hlt_track *track, HLT_EVE *eve) {
-  float dca = sqrt(pow(eve->vertexZ - track->z0,2) 
+  float dca = sqrt(pow(eve->vertexZ - track->z0,2)
   	         + pow(eve->vertexX - track->r0*cos(track->phi0),2)
 		 + pow(eve->vertexY - track->r0*sin(track->phi0),2));
   return dca;
@@ -2595,7 +2597,7 @@ float hltBuilder::getDCA(hlt_track *track, HLT_EVE *eve) {
 //    mPion = 0.13957018;  	//pion mass in gev/c^2
 //    mKaon = 0.493677;    	//kaon mass in gev/c^2
 //    mProton = 0.93827203;	//proton mass in gev/c^2
-    
+
 void hltBuilder::setUpdateSwitch(Bool_t a) { UPDATE_SWITCH = a; };
 Bool_t hltBuilder::getUpdateSwitch() { return UPDATE_SWITCH; };
 
@@ -2611,7 +2613,7 @@ int hltBuilder::sameSignCheck(hlt_track *trkA, float *trkB) {
 };
 
 Bool_t hltBuilder::fullBuffer(int vb, int mb) {
-  //for given vertex bin vb and multiplicity bin mb check that the 
+  //for given vertex bin vb and multiplicity bin mb check that the
   //last event out of Nhbtmixing events has an event with non-zero multiplicity
   //printf("Nhbtmixing = %d\n",Nhbtmixing);
   if( (vb < NvertexMixingBins) && (mb < NmultMixingBins) ) { //printf("vb = %d, mb = %d\n",vb,mb);
@@ -2637,7 +2639,7 @@ int hltBuilder::getVertexMixingBin(float vertZ) {
   for(int vc=0;vc < NvertexMixingBins; vc++) {
     //printf("vertZ > %f && vertZ <= %f\n",(vertZmin+10*vertRange/NvertexMixingBins*vc),(vertZmin+10*vertRange/NvertexMixingBins*(vc+1)));
     if( (vertZ > (vertZmin+vertRange/NvertexMixingBins*vc)) &&
-        (vertZ <=(vertZmin+vertRange/NvertexMixingBins*(vc+1))) ) return vc; 
+        (vertZ <=(vertZmin+vertRange/NvertexMixingBins*(vc+1))) ) return vc;
   }
   return 999999999; //out of range
 };
@@ -2703,9 +2705,9 @@ void hltBuilder::computeV2Corrected() {
 void hltBuilder::main(int argc, char *argv[])
 {
   hltBuilder me;
-  
+
   me.Main(argc, argv);
 };
 
 
- 
+

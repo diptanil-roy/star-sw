@@ -8,6 +8,7 @@
 #include <cstring>
 #include "TH2.h"
 #include <mysql/mysql.h>
+#include "RTS/trg/include/trgConfNum.h"
 #include "StEvent/StEventTypes.h"
 #include "StMuDSTMaker/COMMON/StMuTypes.hh"
 #include "Board.hh"
@@ -79,9 +80,9 @@ StFmsTriggerMaker::StFmsTriggerMaker(const char* name)
   , fm012(fms.boardAt(FM012_BASE_ADDRESS))
   , fm101(fms.boardAt(FM101_BASE_ADDRESS))
   , fm102(fms.boardAt(FM102_BASE_ADDRESS))
-  , fm103(fms.boardAt(FM103_BASE_ADDRESS))  
-  , fm104(fms.boardAt(FM104_BASE_ADDRESS))  
-  
+  , fm103(fms.boardAt(FM103_BASE_ADDRESS))
+  , fm104(fms.boardAt(FM104_BASE_ADDRESS))
+
   // MIX crate
   , fe101(mix.boardAt(FE101_BASE_ADDRESS))
 
@@ -182,13 +183,13 @@ int StFmsTriggerMaker::Init()
   return kStOk;
 }
 
-int StFmsTriggerMaker::InitRun(int runNumber){  
+int StFmsTriggerMaker::InitRun(int runNumber){
   //mDBTime = GetDBTime();
   //mDBTime = TDatime();
   return loadRegisters(runNumber);
 }
 
-int StFmsTriggerMaker::Finish(){  
+int StFmsTriggerMaker::Finish(){
   printf("%12d      Number of ADC=0xFFF\n",mNFFF);
   return kStOK;
 }
@@ -234,8 +235,8 @@ int StFmsTriggerMaker::MakeMuDst()
 int StFmsTriggerMaker::MakeStEvent()
 {
   StEvent* event = (StEvent*)GetDataSet("StEvent");
-  // printf("Getting StEvent and fmsCollection %x %x\n",event,event->fmsCollection());  
-  if (event && event->fmsCollection()) {    
+  // printf("Getting StEvent and fmsCollection %x %x\n",event,event->fmsCollection());
+  if (event && event->fmsCollection()) {
     //printf("Found StEvent and fmsCollection\n");
     const StSPtrVecFmsHit& hits = event->fmsCollection()->hits();
     for (size_t i = 0; i < hits.size(); ++i) writeQtCrate(hits[i]);
@@ -259,11 +260,11 @@ int StFmsTriggerMaker::MakeTrgData(){
 	for(int ch=0; ch<32; ch++){
 	  int adc=trgd->fmsADC(crt,adr,ch,x);
 	  if(adc>0) {
-	    writeQtCrate(crt,adr,ch,adc,t); 
+	    writeQtCrate(crt,adr,ch,adc,t);
 	    n++;
 	    if(adc==0xFFF) {
 	      printf("0xFFF problem : Crt=%2d Adr=%2d ch=%2d ADC=%4d\n",crt,adr,ch,adc);
-	      mNFFF++;	      
+	      mNFFF++;
 	    }
 	    //	    if(crt==2 && adr==0) printf("Crt=%2d Adr=%2d ch=%2d ADC=%4d\n",crt,adr,ch,adc);
 	  }
@@ -285,7 +286,7 @@ int StFmsTriggerMaker::MakeTrgData(){
 }
 
 unsigned char* dFMS;
-unsigned short dFP201[8];  
+unsigned short dFP201[8];
 inline unsigned int getDSMdata(int slot, int ch){
   static const int chadd[4]={7,3,15,11};
   static const int chadd2[4]={3,1,7,5};
@@ -297,10 +298,10 @@ inline unsigned int getDSMdata(int slot, int ch){
     return dFP201[add] + (dFP201[add-1]<<16);
   }
   return 0;
-}  
+}
 
 void StFmsTriggerMaker::writeDsmData(int t){
-  StTriggerData* trgd=(StTriggerData*)GetDataSet("StTriggerData")->GetObject();  
+  StTriggerData* trgd=(StTriggerData*)GetDataSet("StTriggerData")->GetObject();
   if(!trgd) {printf("writeDsmData found no trigger data\n"); return; }
   int x=t-MAXPP;
   dFMS=trgd->getDsm_FMS(x);
@@ -421,7 +422,7 @@ void StFmsTriggerMaker::runFpeQtLayer(int t){
   qt32b_fpe_2009_a(fe004,t);
 }
 
-void StFmsTriggerMaker::runFmsQtLayer(int t){  
+void StFmsTriggerMaker::runFmsQtLayer(int t){
   for(int i=0; i<12; i++){
     if(mDBTime.GetYear()<2015){
       qt32b_fms_2009_a(qt1.boards[i],t);
@@ -447,7 +448,7 @@ void StFmsTriggerMaker::runFmsLayer0(int t){
     fms_fm005_2011_a(fm005,t);
     fms_fm005_2011_a(fm007,t);
     fms_fm005_2011_a(fm009,t);
-    fms_fm005_2011_a(fm011,t);    
+    fms_fm005_2011_a(fm011,t);
     fms_fm006_2011_a(fm006,t);
     fms_fm006_2011_a(fm008,t);
     fms_fm006_2011_a(fm010,t);
@@ -461,7 +462,7 @@ void StFmsTriggerMaker::runFmsLayer0(int t){
     fms_fm005_2011_a(fm005,t);
     fms_fm005_2011_a(fm007,t);
     fms_fm005_2011_a(fm009,t);
-    fms_fm005_2011_a(fm011,t);    
+    fms_fm005_2011_a(fm011,t);
     fms_fm006_2011_a(fm006,t);
     fms_fm006_2011_a(fm008,t);
     fms_fm006_2011_a(fm010,t);
@@ -516,10 +517,10 @@ void StFmsTriggerMaker::runFmsLayer1(int t){
     fms_fm102_2012_a(fm103,t);
     break;
   case 2015:
-    if(mForceRun<16056024){ 
+    if(mForceRun<16056024){
       fms_fm101_2015_a(fm101,t,mUseDsmData);
       fms_fm101_2015_a(fm102,t,mUseDsmData);
-    }else{                
+    }else{
       fms_fm101_2015_b(fm101,t,mUseDsmData);
       fms_fm101_2015_b(fm102,t,mUseDsmData);
     }
@@ -541,11 +542,11 @@ void StFmsTriggerMaker::runFpdLayer2(int t){
   case 2011: l1_fp201_2011_a(fp201,t); break;
   case 2012: l1_fp201_2012_b(fp201,t); break;
   case 2013: l1_fp201_2012_b(fp201,t); break;
-  case 2015: 
-    if(mForceRun<16056024)  {l1_fp201_2015_a(fp201,t,mUseDsmData);} 
+  case 2015:
+    if(mForceRun<16056024)  {l1_fp201_2015_a(fp201,t,mUseDsmData);}
     else                    {l1_fp201_2015_b(fp201,t,mUseDsmData);}
     break;
-  case 2017: 
+  case 2017:
   default: l1_fp201_2017_a(fp201,t,mUseDsmData);
     break;
   }
@@ -671,7 +672,7 @@ void StFmsTriggerMaker::writeFmsLayer0ToFmsLayer1(Crate& sim, int t)
     ((int*)fm104sim.channels[t])[0] = fms.boards[10].output[t];
     ((int*)fm104sim.channels[t])[1] = fms.boards[11].output[t];
     ((int*)fm104sim.channels[t])[2] = fms.boards[12].output[t];
-    ((int*)fm104sim.channels[t])[3] = fms.boards[13].output[t];   
+    ((int*)fm104sim.channels[t])[3] = fms.boards[13].output[t];
     /*
     for (int ch = 0; ch < 4; ++ch) {
       if(ch<2){
@@ -705,7 +706,7 @@ void StFmsTriggerMaker::writeFmsLayer1ToFpdLayer2(Crate& sim, int t)
     fp201simchannels[0] = fm102.output[t];
     fp201simchannels[1] = fm103.output[t];
     fp201simchannels[2] = fm104.output[t];
-    fp201simchannels[3] = fm101.output[t];    
+    fp201simchannels[3] = fm101.output[t];
   }
 }
 
@@ -719,19 +720,19 @@ int StFmsTriggerMaker::loadRegisters(int runNumber)
   // See http://drupal.star.bnl.gov/STAR/comp/db/onlinedb/online-sever-port-map
   char* host = host1;
   int year;
-  if(mForceRun==0){ 
-    mDBTime=GetDBTime(); 
-    year=mDBTime.GetYear(); 
+  if(mForceRun==0){
+    mDBTime=GetDBTime();
+    year=mDBTime.GetYear();
   }else{
-    int date=(mForceRun%1000000)/1000;   
+    int date=(mForceRun%1000000)/1000;
     year=mForceRun/1000000+1999;
     if(date>250) year++;
     LOG_INFO << Form("DB Year=%d forceYear=%d\n",mDBTime.GetYear(),year) <<endm;
   }
-  unsigned int port = 3400+year%100-1; 
+  unsigned int port = 3400+year%100-1;
   if(year==2018) {port=3501; host=host2;}  //only works at online machines
   if(year>2018) {printf("NO RUN19 DB yet.... Skip for now...\n"); return kStOK; }
-  
+
   const char* database = "Conditions_rts";
   const char* unix_socket = NULL;
   unsigned long client_flag = 0;
@@ -758,7 +759,7 @@ int StFmsTriggerMaker::loadRegisters(int runNumber)
       }
       mysql_free_result(result);
     }
-  }else{ 
+  }else{
     //if mForceRun is set, get date/time for the run, and overwrite run# and DBdate/time.
     sprintf(query,"select beginTime from run where idx_rn=%d",mForceRun);
     LOG_INFO << query << endm;
@@ -944,5 +945,4 @@ int StFmsTriggerMaker::FM1xxuserdata(int number, int ch, int t) const{
 int StFmsTriggerMaker::FP201userdata(int ch, int t) const{
   return fp201.userdata[MAXPP][ch];
 }
-
 

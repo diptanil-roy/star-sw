@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 //#include "RunStatus.h"
 
 #include <TH1I.h>
@@ -11,7 +10,7 @@
 #include <math.h>
 
 // This is the one PlotSet that is guarenteed to always exist
-// It's main purpose is to provide the run information 
+// It's main purpose is to provide the run information
 // To the server...
 //
 // It has no plots (currently)

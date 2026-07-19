@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.113 2018/02/20 17:34:26 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.111 2014/07/23 15:36:55 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -108,8 +108,7 @@ BEGIN {
 $| = 1;
 
 # Seed random number generator.
-#srand(time . $$); # this works better than time ^ $$ in perlfunc manpage.
-srand(time | $$); # this works better than time ^ $$ in perlfunc manpage.
+srand(time . $$); # this works better than time ^ $$ in perlfunc manpage.
 
 $usage = q(
 Usage: cons [arguments] -- [construct-args]
@@ -397,7 +396,7 @@ sub option {
 		    'h' =>    sub { print($usage), exit 0; },
                     'i' =>    sub { $param::defaultInclude = 0;},
                     'g' =>    sub { $param::debug =1;},
-                    'noR' =>  sub { $param::noRepository = 1; 
+                    'noR' =>  sub { $param::noRepository = 1;
 				    print "-noR option is default. To add repository please use -addR option\n";
 				  },
                     'addR'=>  sub { $param::noRepository = 0; },
@@ -864,11 +863,7 @@ sub main::doscripts {
 		$file = $path;
 	    }
 	    # Actually process the Conscript file.
-	    if ( -e "./$file"){
-		do "./$file";
-	    } else {
-		do $file;
-	    }
+	    if ( -e "./$file"){ do "./$file"; } else { do $file; }
 	    # Save any variables defined by the Conscript file
 	    # so we can restore them later, if needed;
 	    # then delete them from the script:: namespace.
@@ -1413,7 +1408,7 @@ sub wanted_xml {
 	/^hold$/ )
      ) {$File::Find::prune = 1; return;}
   if ( /^\.\#/) {return;}
-  if ( /^.*\.xml$/) { 
+  if ( /^.*\.xml$/) {
       # print " $File::Find::name\n";
       push @main::search_files,  $File::Find::name;
   }
@@ -1482,7 +1477,7 @@ sub find_hfiles {
 #________________________________________
 sub wanted_Def {
   my $Dir = $_;  # print "wanted $Dir \n";
-    my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($Dir);  
+    my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($Dir);
   # print "wanted $Dir \n";
   if ( (-r $Dir ) &&
        (/^CVS$/      ||
@@ -3081,7 +3076,7 @@ sub iflags {
 	    }
 	}
     }
-    #print 
+    #print
     #	"*** $iflags\n",
     #	"+-+ $rflags\n";
     # reshufle by hand then as the previous logic failed / JL 2010/05
@@ -3865,8 +3860,8 @@ sub _build {
       printf("%2i  ",$level/2);
       print((' ' x $level), "Checking ", $self->path, "\n");
     }
-    push @param::dependencies, $self->path; 
-    
+    push @param::dependencies, $self->path;
+
     #print "DEBUG:: Done ... going ...\n";
     #print("add ",$self->path,"\n");  #if $param::debug;
 
@@ -4112,46 +4107,46 @@ sub sigarray {
 #    return $self->{sigtype} = $sigtype;
 #}
 #if new
-sub sigtype { 
-    my $self = shift; 
-    
-    # 
-    # If there is already a sigtype, this function is going to do nothing other 
-    # than exit with the sigtype already assigned.  This is the same as the 
-    # original method. 
-    # 
-    unless ($self->{sigtype}) 
-    { 
-        # 
-        # New functionality. 
-        # If there is already a signature, set the $sigtype to the type of 
-        # signature found. 
-        # 
-        foreach (qw(bsig csig)) 
-        { 
-            if ($self->{$_}) 
-            { 
-                $self->{sigtype} = $_; 
-                last; 
-            } 
-        } 
-    } 
-    
-    unless ($self->{sigtype}) 
-    { 
-        # 
-        # Set the $sigtype to a build signature, if that type is found in the 
-        # sigarray.  DON'T ask me why!!! 
-        # 
-        $self->{sigtype} = 'bsig' if grep {$_ eq "build"} $self->sigarray; 
-    } 
-    
-    # 
-    # New functionality. 
-    # Default to a content signature. 
-    #     
-    $self->{sigtype} ||= 'csig'; 
-} 
+sub sigtype {
+    my $self = shift;
+
+    #
+    # If there is already a sigtype, this function is going to do nothing other
+    # than exit with the sigtype already assigned.  This is the same as the
+    # original method.
+    #
+    unless ($self->{sigtype})
+    {
+        #
+        # New functionality.
+        # If there is already a signature, set the $sigtype to the type of
+        # signature found.
+        #
+        foreach (qw(bsig csig))
+        {
+            if ($self->{$_})
+            {
+                $self->{sigtype} = $_;
+                last;
+            }
+        }
+    }
+
+    unless ($self->{sigtype})
+    {
+        #
+        # Set the $sigtype to a build signature, if that type is found in the
+        # sigarray.  DON'T ask me why!!!
+        #
+        $self->{sigtype} = 'bsig' if grep {$_ eq "build"} $self->sigarray;
+    }
+
+    #
+    # New functionality.
+    # Default to a content signature.
+    #
+    $self->{sigtype} ||= 'csig';
+}
 #endif
 
 # Return whether this file is configured to use stored
@@ -4610,7 +4605,7 @@ sub srcsig {
 	unpack("H*", $md5->digest());
     } else {
 	if ($param::quiet < 1){
-	    print  
+	    print
 		"***************************************************************\n",
 		" WARNING from $0 \n",
 		"   [$path] found as an include dependency but is also a directory.\n",

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -12,15 +11,15 @@ class daqBuilder : public JevpBuilder {
 public:
   int run;
 
-  daqBuilder(JevpServer *parent=NULL); 
+  daqBuilder(JevpServer *parent=NULL);
   ~daqBuilder();
-  
+
 
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:

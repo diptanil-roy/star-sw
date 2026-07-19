@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -20,14 +19,14 @@ class mtdBuilder : public JevpBuilder {
   //RunStatus status;
   int run;
 
-  mtdBuilder(JevpServer *parent=NULL); 
+  mtdBuilder(JevpServer *parent=NULL);
   ~mtdBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:
@@ -62,16 +61,16 @@ class mtdBuilder : public JevpBuilder {
   int  mReferenceTray;
   int  mValidShiftTray[2][2];	// index1=value, index2=RDO
 
-  void ReadTraymaskoutList(); 
+  void ReadTraymaskoutList();
   bool MaskoutTray[30];
-  
+
   int tdcchan2globalstrip(int,int,int);
   int tdig2slot(int, int);
   int istray3bl(int);
   int istray5bl(int);
   bool ValidDataword(int);
   int iGlobalSlot(int, int);
- 
+
   //information from the QT map...
   int isADC[nMTDtrig];		// nonzero if ADC, value is channel number
   int isTAC[nMTDtrig];		// nonzero if TAC, value is channel number
@@ -83,7 +82,7 @@ class mtdBuilder : public JevpBuilder {
   TString QTchanstring[128];
   TString QTcable[128];
   TString QTtpcsector[128];
- 
+
   double numberforsort;
   vector<double> leadinghits;
   vector<double> trailinghits;
@@ -94,7 +93,7 @@ class mtdBuilder : public JevpBuilder {
 
   JevpPlot **plots;
   ClassDef(mtdBuilder, 1);
-  
+
 };
 
 #endif

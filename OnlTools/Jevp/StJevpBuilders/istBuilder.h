@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH1S.h>
@@ -18,23 +17,24 @@ struct daq_dta;
 //#define constexpr
 //#endif
 
+class daq_dta;
 
 class istBuilder : public JevpBuilder {
  public:
   int run;
-  
-  istBuilder(JevpServer *parent=NULL); 
+
+  istBuilder(JevpServer *parent=NULL);
   ~istBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
 
   static void main(int argc, char *argv[]);
-  
+
  private:
-  
+
   void fillSumHistos();
   TH1D* projX;
   TRandom tRnd;
@@ -42,7 +42,7 @@ class istBuilder : public JevpBuilder {
   int t_2min;
   int t_10min;
   int t_120min;
- 
+
   //constants declarations...
   static const int totSec       = 72;    // 24 ladders * 3 sections
   static const int totSensor    = 144;   // 24 ladders * 6 sensors
@@ -280,7 +280,7 @@ class istBuilder : public JevpBuilder {
       TH1* hMaxTBfractionVsSection_ZS; //max time bin fraction in 1,2,3 over all time bins vs section ID
     };
   } hEventSumContents;
-  
+
   union {
     TH1 *mipArray[]; //MIP signal distribution per section (2 sensors)
     struct { // 1-72 non-ZS data; 73-144 ZS data
@@ -433,7 +433,7 @@ class istBuilder : public JevpBuilder {
 
   union {
     TH1 *maxTimeBinArray[]; //MaxTimeBin per section
-    struct { 
+    struct {
       TH1* hMaxTB1;
       TH1* hMaxTB2;
       TH1* hMaxTB3;
@@ -514,7 +514,7 @@ class istBuilder : public JevpBuilder {
     struct{
       TH2* hVisibleApv;//visible APVs per section per event
       TH2* hHitMap;       //hit density (phi vs. z -- 64*24 vs. 12*6)
-      TH2* hHitMapVsAPV;  //Update 03/03/2014 Yaping Wang: hit map on APV (APV geometry ID vs. ladder geometry ID) 
+      TH2* hHitMapVsAPV;  //Update 03/03/2014 Yaping Wang: hit map on APV (APV geometry ID vs. ladder geometry ID)
       TH2* hHitMap_ZS;       //hit density (phi vs. z -- 64*24 vs. 12*6)
       TH2* hHitMapVsAPV_ZS;  //Update 03/03/2014 Yaping Wang: hit map on APV (APV geometry ID vs. ladder geometry ID)
       TH2* hMultVsLadder; //total number of hits per event vs. ladder

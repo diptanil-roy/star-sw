@@ -4,19 +4,17 @@
 /////            using Jeff's new FramWork            //////
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
-/////                                                ///////  
-/////        Beam Energy Scan Online plots           ///////  
+/////                                                ///////
+/////        Beam Energy Scan Online plots           ///////
 /////                                                ///////
 ////////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 //#include <DAQ_READER/daq_dta.h>
 struct daq_dta;
 
-#include <DAQ_L3/daq_l3.h>
 #include <TStyle.h>
 #include "TVector3.h"
 #include <fstream>
@@ -26,25 +24,26 @@ struct daq_dta;
 #include <TH1D.h>
 #include <TH2F.h>
 #include <TH3F.h>
-#include <TFile.h> 
+#include <TFile.h>
 #include <TProfile.h>
 #include <math.h>
-#include <DAQ_HLT/daq_hlt.h>
-#include "RTS/include/HLT/HLTFormats.h"
 //#include <time.h>
 //#include <sys/time.h>
 
+struct hlt_track;
+struct HLT_EVE;
+
 class hltBuilder : public JevpBuilder {
  public:
-    
+
   ///////////// struct ////////////
   struct hbt_event_info {
     int mult;
     float zvertex;
-    int ntracks; 
+    int ntracks;
     float track[10000][5];
-  };      
-        
+  };
+
   struct eventCut_info {
     float zvertexMax;   float zvertexMin;
     float rvertexMax;  	float rvertexMin;
@@ -52,7 +51,7 @@ class hltBuilder : public JevpBuilder {
     float BEMCwestEnergyMax;	float BEMCwestEnergyMin;
     float BEMC_EastWestDiffMax;	float BEMC_EastWestDiffMin;
     float multMax;      float multMin;
-  };      
+  };
 
   struct trackCut_info {
     int nHitsMin;       int nHitsMax;
@@ -65,13 +64,13 @@ class hltBuilder : public JevpBuilder {
   //Timing variables to reset periodic plots
   int last_time;
   float nHours;
-  //timeval PeriodicStart; 
-  //timeval PeriodicResetTest; 
+  //timeval PeriodicStart;
+  //timeval PeriodicResetTest;
   //timeval PeriodicResult;
 
   ////////// plots /////////
   JevpPlot *HltPlots[156]; //was 144 //was 132 //was 110 //was 54
-        
+
   ////// histogram ////////
   //These are for the Vertex Method of counting good events
   TH1F* cVz1;  TH1F* cVz2;  TH1F* cVz3;  TH1F* cVz4;  //plot1-plot4
@@ -80,7 +79,7 @@ class hltBuilder : public JevpBuilder {
   TH1F* cVr1;  TH1F* cVr2;  TH1F* cVr3;  TH1F* cVr4;  //plot13-plot16
   TH2F* tot_Vxy1;  TH2F* tot_Vxy2;  TH2F* tot_Vxy3;  TH2F* tot_Vxy4;  //plot17-plot20
   TH1F* cM1;  TH1F* cM2;  TH1F* cM3;  TH1F* cM4;  //plot21-plot24
-    
+
   //These are for the BEMC related backup method of counting good events  TH1F* Vz1;  TH1F* Vz2;  TH1F* Vz3;  TH1F* Vz4;  //plot1-plot4
   TH1F* Vz1;  TH1F* Vz2;  TH1F* Vz3;  TH1F* Vz4;  //plot1-plot4
   TH1F* Vx1;  TH1F* Vx2;  TH1F* Vx3;  TH1F* Vx4;  //plot5-plot8
@@ -91,14 +90,14 @@ class hltBuilder : public JevpBuilder {
   TH1F* Eta1;  TH1F* Eta2;  TH1F* Eta3;  TH1F* Eta4;    //plot26-plot28
   TH2F* Timevsmultiplicity;  //plot29
   TH2F* Ratevsmultiplicity;  //plot30
-      
+
   TProfile* v2_pt;
   TH1F* v2ptCounter;
   //plot31
   TProfile* resolution;
   //plot32
   TProfile* corrected_v2_pt;
-  TH1F* corrected_v2ptCounter; 
+  TH1F* corrected_v2ptCounter;
   //plot33
   TH2F* dedx;
   //plot34
@@ -131,18 +130,18 @@ class hltBuilder : public JevpBuilder {
   //TH2F* tot_Vxy1;  TH2F* tot_Vxy2;  TH2F* tot_Vxy3;  TH2F* tot_Vxy4;  //plot17-plot20
   TH1F* tot_cM1;  TH1F* tot_cM2;  TH1F* tot_cM3;  TH1F* tot_cM4;  //plot21-plot24
 //**************** End new cumulative histos for Vertex Method of counting
-  
+
 //****************** New cumulative analysis histos
   TH2F* tot_Timevsmultiplicity;  //plot29
   TH2F* tot_Ratevsmultiplicity;  //plot30
-      
+
   TProfile* tot_v2_pt;
   TH1F* tot_v2ptCounter;
   //plot31
   TProfile* tot_resolution;
   //plot32
   TProfile* tot_corrected_v2_pt;
-  TH1F* tot_corrected_v2ptCounter; 
+  TH1F* tot_corrected_v2ptCounter;
   //plot33
   TH2F* tot_dedx;
   //plot34
@@ -209,7 +208,7 @@ class hltBuilder : public JevpBuilder {
   hbt_event_info hbt_buffer[1][3][3]; // initialize Nhbtmixing to the size of the first array index, NvertexMixingBins to second index, NmultMixingBins to third index
   hbt_event_info hbt_current;
 
-  //create cuts here (set them in initialize function.)   
+  //create cuts here (set them in initialize function.)
   eventCut_info eventCuts;
   trackCut_info multTrackCuts;
   trackCut_info v2ptTrackCuts;
@@ -223,22 +222,22 @@ class hltBuilder : public JevpBuilder {
   Bool_t V2CALC;
 
   //const char* plotsetname; //*********************************Chris Added this to get it to compile.
-  ////////////////////// Function //////////////////// 
+  ////////////////////// Function ////////////////////
 
   hltBuilder(JevpServer *parent=NULL) : JevpBuilder(parent)
     { plotsetname = (char *)"hlt"; }
- 
+
   void initialize(int argc, char *argv[]);
-   
+
   void startrun(daqReader *rdr);
 
-  void stoprun(daqReader *rdr); 
+  void stoprun(daqReader *rdr);
 
   void event(daqReader *rdr);
 
   int selectEvent(daqReader *rdr);
 
-  int selectRun(daqReader *rdr); 
+  int selectRun(daqReader *rdr);
 
   int getPID(hlt_track *track);
 
@@ -248,7 +247,7 @@ class hltBuilder : public JevpBuilder {
 
   float getQout(hlt_track *trackA, hlt_track *trackB);
 
-  float getQout(hlt_track *trackA, float *trackB); 
+  float getQout(hlt_track *trackA, float *trackB);
 
   float getQside(hlt_track *trackA, hlt_track *trackB);
 
@@ -261,7 +260,7 @@ class hltBuilder : public JevpBuilder {
   Bool_t vertexEventCut(HLT_EVE *hlt_eve, eventCut_info *eventCuts);
 
   Bool_t multiplicityEventCut(int MULTIPLICITY, eventCut_info *eventCuts);
-  
+
   Bool_t BemcEventCut(float BemcEastEnergy, float BemcWestEnergy, eventCut_info *eventCuts);
 
   Bool_t trackCut(hlt_track *track, HLT_EVE *eve, trackCut_info *cut);
@@ -305,7 +304,7 @@ class hltBuilder : public JevpBuilder {
   void computeYieldsHistogram();
 
   void computeHbtCorrelationFunction();
-  
+
   void computeV2Corrected();
 
   static void main(int argc, char *argv[]);
@@ -313,10 +312,6 @@ class hltBuilder : public JevpBuilder {
   ClassDef(hltBuilder, 1);
 };
 //////////////////////////////////////////////////
-
-
-
-
 
 
 

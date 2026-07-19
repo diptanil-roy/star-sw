@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
+class daq_dta;
 //#include "DAQ_READER/daq_dta.h"
 struct daq_dta;
 #include <TH1F.h>
@@ -14,14 +14,14 @@ class fpsBuilder : public JevpBuilder {
 public:
   int run;
 
-  fpsBuilder(JevpServer *parent=NULL); 
+  fpsBuilder(JevpServer *parent=NULL);
   ~fpsBuilder();
-  
+
   void initialize(int argc, char *argv[]);
   void startrun(daqReader *rdr);
   void stoprun(daqReader *rdr);
   void event(daqReader *rdr);
-  
+
   static void main(int argc, char *argv[]);
 
  private:

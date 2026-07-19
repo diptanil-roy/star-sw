@@ -2,10 +2,7 @@
 #include <stdlib.h>
 
 #include "JevpBuilder.h"
-#include "DAQ_READER/daqReader.h"
 //#include <DAQ_READER/daq_dta.h>
-#include <DAQ_L3/daq_l3.h>
-#include <DAQ_L4/daq_l4.h>
 #include <TStyle.h>
 #include "TVector3.h"
 #include <fstream>
@@ -15,12 +12,10 @@
 #include <TH1D.h>
 #include <TH2F.h>
 #include <TH3F.h>
-#include <TFile.h> 
+#include <TFile.h>
 #include <TProfile.h>
 #include "TStopwatch.h"
 #include <math.h>
-#include <DAQ_HLT/daq_hlt.h>
-#include "RTS/include/HLT/HLTFormats.h"
 
 enum {
 	e,
@@ -37,12 +32,12 @@ class l4Builder : public JevpBuilder {
 	public:
 		/**
 		 * Plots, Functions, Histograms.
-		 * @param 
-		 * @return 
-		 * @exception 
-		 * @see 
-		 * @author 
-		 */  
+		 * @param
+		 * @return
+		 * @exception
+		 * @see
+		 * @author
+		 */
                 static const int nHltPlots = 60;
                 JevpPlot *HltPlots[nHltPlots];
 
@@ -62,7 +57,7 @@ class l4Builder : public JevpBuilder {
 		JevpPlot *DiElectron2TwrPlots[10];
 		JevpPlot *DiPionPlots[2];
 		JevpPlot *DiMuonPlots[14];
-		JevpPlot *UPCDiElectronPlots[10];   
+		JevpPlot *UPCDiElectronPlots[10];
 		JevpPlot *HltPlots_UPC[30];
 		PlotHisto *ph;
 
@@ -71,9 +66,9 @@ class l4Builder : public JevpBuilder {
 
 		}
 
-		void initialize(int argc, char *argv[]);   
+		void initialize(int argc, char *argv[]);
 		void startrun(daqReader *rdr);
-		void stoprun(daqReader *rdr); 
+		void stoprun(daqReader *rdr);
 		void event(daqReader *rdr);
 		static void main(int argc, char *argv[]);
 
@@ -111,11 +106,11 @@ class l4Builder : public JevpBuilder {
 
 		TLegendEntry *entry;
 		TF1 *fTheoDedx_e_pos;
-		TF1 *fTheoDedx_e_neg; 
+		TF1 *fTheoDedx_e_neg;
 		TF1 *fTheoDedx_Pi_pos;
 		TF1 *fTheoDedx_Pi_neg;
-		TF1 *fTheoDedx_K_pos; 
-		TF1 *fTheoDedx_K_neg; 
+		TF1 *fTheoDedx_K_pos;
+		TF1 *fTheoDedx_K_neg;
 		TF1 *fTheoDedx_P_pos;
 		TF1 *fTheoDedx_P_neg;
 		TF1 *fTheoDedx_D_pos;
@@ -139,13 +134,13 @@ class l4Builder : public JevpBuilder {
 		bool GlobalTracksFilled;
 		bool PrimaryTracksFilled;
 		bool EMCFilled;
-		bool TOFFilled; 
+		bool TOFFilled;
 		bool BESGoodFilled;
 		bool HLTGood2Filled;
 		bool BESMonitorFilled;
 		bool FixedTargetFilled;
-		bool FixedTargetMonitorFilled; 
-		bool UPCFilled; 
+		bool FixedTargetMonitorFilled;
+		bool UPCFilled;
 		bool DiMuonFilled;
 		bool UPCDiElectronFilled;
 		bool DiElectronFilled;
@@ -158,7 +153,7 @@ class l4Builder : public JevpBuilder {
 		int switch_BesMonitor;
 		int switch_FixedTarget;
 		int switch_FixedTargetMonitor;
-		int switch_HeavyFragment;  
+		int switch_HeavyFragment;
 		int switch_jpsi;
 		int switch_upc;
 		double innerGainPara;
@@ -173,7 +168,7 @@ class l4Builder : public JevpBuilder {
 
 		// track
 		TH1I *hnhits;
-		TH1I *hnDedx; 
+		TH1I *hnDedx;
 		TH1D *hDcaXy;
 		TH1D *hDcaZ ;
 		TH1D *hDcaXy_TofMatch;
@@ -189,7 +184,7 @@ class l4Builder : public JevpBuilder {
 		TH1D *hPrim_Pt;
 		TH1D *hPrim_Phi;
 		TH1D *hPrim_Eta;
-		TH2F *hPrim_dEdx;	
+		TH2F *hPrim_dEdx;
 		TH1I *hnhits_UPC;
 		TH1I *hnDedx_UPC;
 		TH1D *hDcaXy_UPC;
@@ -205,7 +200,7 @@ class l4Builder : public JevpBuilder {
 		TH2F *hPrim_dEdx_UPC;
 
 		// event
-		TH1D *hVertexX; 
+		TH1D *hVertexX;
 		TH1D *hVertexY;
 		TH1D *hVertexZ;
 		TH2D *hVertexXY;
@@ -215,7 +210,7 @@ class l4Builder : public JevpBuilder {
 		TH1D *hLm_VertexZ;
 		TH1I *hglobalMult;
 		TH1I *hprimaryMult;
-		
+
 		JLatex* hltSummaryLine1;
 		JLatex* hltSummaryLine2;
 		/* TH1D *hFixed_VertexZ; */
@@ -223,7 +218,7 @@ class l4Builder : public JevpBuilder {
 
 		/*   TH1I *hLmPrimaryMult; */
 
-		TH1D *hVertexX_UPC; 
+		TH1D *hVertexX_UPC;
 		TH1D *hVertexY_UPC;
 		TH1D *hVertexZ_UPC;
 		TH1D *hLm_VertexX_UPC;
@@ -235,14 +230,14 @@ class l4Builder : public JevpBuilder {
 		// EMC
 		TH1D *hMatchPhi_Diff;
 		TH1D *hTowerEnergy ;
-		TH1I *hTowerDaqId; 
+		TH1I *hTowerDaqId;
 		TH1I *hTowerSoftId;
 		TH1D *hzEdge;
 		TH2F *hTowerEtaPhi;
 
 		TH1D *hMatchPhi_Diff_UPC;
 		TH1D *hTowerEnergy_UPC;
-		TH1I *hTowerDaqId_UPC; 
+		TH1I *hTowerDaqId_UPC;
 		TH1I *hTowerSoftId_UPC;
 		TH1D *hzEdge_UPC;
 		TH2F *hTowerEtaPhi_UPC;
@@ -254,12 +249,12 @@ class l4Builder : public JevpBuilder {
 		TH1D *hDiElectronInvMassFullRangeBG;
 		TH1D *hDiElectronInvMassCut;
 		TH1D *hDiElectronInvMassCutBG;
-		TH2F *hdEdx_P1; 
+		TH2F *hdEdx_P1;
 		TH1D *hDaughter1P_TowerEnergy;
 		TH1D *hDaughter1TpxEmcInverseBeta;
 		TH2F *hdEdx_P2;
 		TH1D *hDaughter2P_TowerEnergy;
-		TH1D *hDaughter2TpxEmcInverseBeta; 
+		TH1D *hDaughter2TpxEmcInverseBeta;
 		TH1D *hDiLeptonRapidity;
 
 		TH1D *hDiElectronInvMassTpxEmc_Twr;
@@ -278,7 +273,7 @@ class l4Builder : public JevpBuilder {
 
 		TH1D *hDiElectronInvMassFullRange_UPC;
 		TH1D *hDiElectronInvMassFullRangeBG_UPC;
-		TH2F *hdEdx_P1_UPC; 
+		TH2F *hdEdx_P1_UPC;
 		TH1D *hDaughter1P_TowerEnergy_UPC;
 		TH2F *hdEdx_P2_UPC;
 		TH1D *hDaughter2P_TowerEnergy_UPC;
@@ -292,11 +287,11 @@ class l4Builder : public JevpBuilder {
 		TH1F *hMTDDiMuonUpsilonMassLS;
 		TH1F *hInvMassUS;
 		TH1F *hInvMassLS;
-		TH2F *hMtdHitMap;        
-		TH2F *hMtdMatchHitMap;    
-		TH2F *hMtdDeltaZvsModule; 
-		TH1F *hMtdDeltaZ;         
-		TH2F *hMtdDeltaYvsModule; 
+		TH2F *hMtdHitMap;
+		TH2F *hMtdMatchHitMap;
+		TH2F *hMtdDeltaZvsModule;
+		TH1F *hMtdDeltaZ;
+		TH2F *hMtdDeltaYvsModule;
 		TH1F *hMtdDeltaY;
 		//MTD Quarkonium QA plots
 		TH1F *hMTDQmInvMassUS;
@@ -306,7 +301,7 @@ class l4Builder : public JevpBuilder {
 		TH1F *hMTDQmJpsiMass_ptcut0_LS;
 		TH1F *hMTDQmJpsiMass_ptcut2_US;
 		TH1F *hMTDQmJpsiMass_ptcut2_LS;
-		TH1F *hMTDQmJpsiMass_ptcut4_US; 
+		TH1F *hMTDQmJpsiMass_ptcut4_US;
 		TH1F *hMTDQmJpsiMass_ptcut4_LS;
 
 		double US8;
@@ -385,7 +380,7 @@ class l4Builder : public JevpBuilder {
                 TH2D *hEtofInvBeta;
                 TH2D *hEtofLocalYMrpc;
                 TProfile *pEtofNhitsPerEvent;
-    
+
                 /*   TH3D *hMatchannel3D ; */
 
 		TH2F *hVzvpd_Vz_UPC ;
@@ -402,7 +397,7 @@ class l4Builder : public JevpBuilder {
 		TH1I *hUpc ;
 		TH1I *hMtd ;
 		TH1I *hNpeHt_25_NoZdc;
-		TH1I *hVpdMb; 
+		TH1I *hVpdMb;
 		TH1I *hCentral;
 		TH1I *hNpeHt_25;
 		TH1I *hNpe;
@@ -410,7 +405,7 @@ class l4Builder : public JevpBuilder {
 
 		// run-by-run display
 		TH1D *hBeamX;
-		TH1D *hBeamY; 
+		TH1D *hBeamY;
 		TH1D *hInnerGain;
 		TH1D *hOuterGain;
 		TH1D *hMeanDcaXy;
@@ -464,8 +459,8 @@ class l4Builder : public JevpBuilder {
 		TH1D *hFixedTargetMonitor_VertexZ;
 		TH1D *hFixedTargetMonitor_Prim_Eta;
 		TH1D *hFixedTargetMonitor_Glob_Eta;
-		
+
                 unsigned int first_evt_time = 0;
-                
+
                 ClassDef(l4Builder, 1);
 };
