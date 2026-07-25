@@ -80,6 +80,10 @@ pointer-width-safe conversion.
 
 - `StRoot/St_geant_Maker/navigate.g`
   - Uses pointer-width-safe node/address storage.
+- `asps/Simulation/starsim/deccc/locf.c`
+  - Uses the later pointer-token implementation with a stable nonzero base.
+  - Falls back to `csvptokn_`/`csvplong` when an address cannot be represented
+    directly instead of aborting on the valid 64-bit token path.
 - `asps/Simulation/starsim/atgeant/agsbegm.age`
   - Uses a fixed local RZ buffer rather than deriving a buffer through a
     truncated address calculation.
@@ -178,6 +182,51 @@ Runtime validation output:
 ```text
 /gpfs01/star/pwg/droy1/STAR-Workspace/D0Analysis/PythiaScript/validation_runBfc_SL16d_64b_final_20260718_2352/rcf22000_15117062_0000_1_10evts.MuDst.root
 ```
+
+### P16id real-data reconstruction regression
+
+The local 64-bit release was also tested against the first 10 events of the
+2015 P16id reference DAQ file:
+
+```text
+/star/rcf/test/daq/2015/148/st_physics_16148020_raw_4000024.daq
+```
+
+using the chain recorded in the original P16id production log:
+
+```text
+DbV20160710 pp2015c btof mtd mtdCalib pp2pp fmsDat fmsPoint fpsDat BEmcChkStat -evout CorrX OSpaceZ2 OGridLeak3D -hitfilt
+```
+
+Results:
+
+- The 10 local run/event IDs exactly match the first 10 events in the original
+  P16id production log.
+- The chain completed with 450 `StOK`, 10 `StWarn`, 0 `StErr`, and 0
+  `StFatal` returns.
+- The output MuDst contains 10 entries, 56 branches, and is not marked as a
+  recovered ROOT file.
+- For 7 of 10 events, TPC used/good-hit counts, BTOF hit count, primary-vertex
+  count, and BEMC/EEMC fired/track/match summaries all match the original log
+  exactly.
+- The remaining three events have small tracking differences: event 1084365
+  differs by 6 used and 32 good TPC hits plus one BEMC-associated track;
+  event 1084623 differs by one used and one good TPC hit; event 1084632
+  differs by 4 used and 17 good TPC hits.
+
+Regression evidence:
+
+```text
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/validation_P16id_DAQ_10evt_agdgetp_fix_20260725/
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/validation_build_agdgetp_20260725.log
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/validation_build_agdgetp_20260725.status
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/validation_noop_after_p16id_fixes_20260725.log
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/validation_noop_after_p16id_fixes_20260725.status
+```
+
+This is a strong reconstruction-level compatibility check, but it is not a
+substitute for the full histogram/plot comparison required to establish
+physics equivalence of the 32-bit and 64-bit releases.
 
 ## Important validation distinction
 
