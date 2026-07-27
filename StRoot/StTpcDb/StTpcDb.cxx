@@ -279,6 +279,15 @@ float StTpcDb::DriftVelocity(Int_t sector) {
   if (sector <= 12) kase = 0;
   return 1e6*mDriftVel[kase];
 }
+//-----------------------------------------------------------------------------
+Double_t StTpcDb::DriftVelocityDouble(Int_t sector) {
+  static UInt_t u2007 = TUnixTime(20070101,0,1).GetUTime();
+  assert(mUc > 0);
+  if (mUc < u2007) sector = 24;
+  UInt_t kase = 1;
+  if (sector <= 12) kase = 0;
+  return 1e6*static_cast<Double_t>(mDriftVel[kase]);
+}
 #endif
 //-----------------------------------------------------------------------------
 void StTpcDb::SetDriftVelocity() {

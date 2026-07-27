@@ -93,6 +93,16 @@ my $STIC    = $env1->{STIC};
 my $EXTRA_CPPFLAGS = $env1->{EXTRA_CPPFLAGS};
 my $CPPFLAGS = $env1->{CPPFLAGS};
 
+# The historical 32-bit SL16d/P16id StDbUtilities calculations used the
+# x87 register stack and retained 80-bit intermediates.  On x86-64 GCC
+# otherwise selects SSE arithmetic, which changes the gate-grid correction
+# enough to move borderline TPC hits and tracks.  Limit the compatibility
+# flags to this numerically sensitive package; -ffloat-store must not be
+# used because it truncates the intermediates and fails the P16id oracle.
+if ($pkg eq "StDbUtilities" && $STAR_SYS =~ /x8664/) {
+    $CXXFLAGS .= " -mfpmath=387 -mpc80";
+}
+
 my $ROOTCINT_CPPFLAGS = "";
 my @idlL    = script::find_idl($Dir); # print "find_idlL: ======== @idlL ======\n";
 print "In Dir = $Dir idlL = @idlL\n" if $param::debug;

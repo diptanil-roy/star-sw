@@ -235,6 +235,9 @@ class StTpcDb {
   Float_t DriftVelocity(Int_t sector=24, Double_t Y = 0);
 #else
   Float_t DriftVelocity(Int_t sector=24);
+  // Preserve the pre-64-bit x87 result of 1e6*mDriftVel without changing
+  // the ABI of the historical Float_t accessor.
+  Double_t DriftVelocityDouble(Int_t sector=24);
 #endif
   StMagUtilities* ExB() {return mExB;}
   void SetExB(StMagUtilities *m) {mExB = m;}

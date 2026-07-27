@@ -19,6 +19,35 @@ The Git tag and the centrally installed release do not contain exactly the
 same revisions of every file. The port was therefore transferred as targeted
 64-bit changes instead of replacing complete source files wherever possible.
 
+## P16id floating-point compatibility correction (2026-07-27)
+
+The remaining P16id reconstruction mismatch was traced to the
+`Float_t StTpcDb::DriftVelocity()` return boundary. The i386 ABI preserved
+excess precision for `1e6*mDriftVel[kase]` in the x87 return register, while
+the x86-64 ABI rounded the result to `Float_t` before downstream code promoted
+it to `Double_t`.
+
+This branch therefore:
+
+- retains the historical `Float_t DriftVelocity()` ABI;
+- adds `Double_t StTpcDb::DriftVelocityDouble()`;
+- uses the double-valued accessor at the four call sites in
+  `StTpcCoordinateTransform.cc`;
+- builds `StDbUtilities` with `-mfpmath=387 -mpc80`.
+
+The compiled copied release passed a 100-event historical P16id comparison
+with all selected event-level metrics exactly equal. Rebuilding all 31
+reconstruction packages with x87, without the new accessor, left the same two
+event-level failures and was rejected. This isolates the required source fix
+from a broad compiler-mode workaround.
+
+Validation evidence:
+
+```text
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/diagnostics_20260727/double_drift_velocity_64/test_first100/comparison.csv
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/diagnostics_20260727/full_reco_x87_64/test_first100/comparison.csv
+```
+
 ## Summary of changes
 
 ### Build system and dependency discovery
