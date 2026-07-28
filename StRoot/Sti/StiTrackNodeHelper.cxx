@@ -222,6 +222,10 @@ int StiTrackNodeHelper::propagateFitd()
 
 
 //______________________________________________________________________________
+#if defined(__GNUC__) && defined(__x86_64__)
+#pragma GCC push_options
+#pragma GCC target("sse2,fpmath=sse")
+#endif
 int StiTrackNodeHelper::propagateMtx()
 {
 //  	fYE == dY/dEta
@@ -262,6 +266,10 @@ int StiTrackNodeHelper::propagateMtx()
   mMtx.A[1][1] = fYX*sa+ca-1;
   return 0;
 }
+#if defined(__GNUC__) && defined(__x86_64__)
+#pragma GCC pop_options
+#endif
+
 //______________________________________________________________________________
 int StiTrackNodeHelper::propagateError()
 {

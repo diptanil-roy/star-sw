@@ -103,6 +103,15 @@ if ($pkg eq "StDbUtilities" && $STAR_SYS =~ /x8664/) {
     $CXXFLAGS .= " -mfpmath=387 -mpc80";
 }
 
+# The historical 32-bit Sti build used x87 arithmetic.  Retaining x87 for
+# the 64-bit package reproduces the P16id track topology at numerical
+# boundaries.  StiTrackNodeHelper::propagateMtx carries its own narrow SSE
+# override because covariance propagation matches the 32-bit reference with
+# 53-bit intermediates while the surrounding tracking code requires x87.
+if ($pkg eq "Sti" && $STAR_SYS =~ /x8664/) {
+    $CXXFLAGS .= " -mfpmath=387";
+}
+
 my $ROOTCINT_CPPFLAGS = "";
 my @idlL    = script::find_idl($Dir); # print "find_idlL: ======== @idlL ======\n";
 print "In Dir = $Dir idlL = @idlL\n" if $param::debug;
