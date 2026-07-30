@@ -60,9 +60,39 @@ The accepted compiled release is:
 /gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b
 ```
 
+## Full remote paths
+
+This README in the accepted compiled source tree:
+
+```text
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/README_P16id_COMPATIBILITY.md
+```
+
+Files changed specifically for P16id numerical compatibility:
+
+```text
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/mgr/Conscript-standard
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/StRoot/StTpcDb/StTpcDb.h
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/StRoot/StTpcDb/StTpcDb.cxx
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/StRoot/StDbUtilities/StTpcCoordinateTransform.cc
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/SL16d_embed_64b/StRoot/Sti/StiTrackNodeHelper.cxx
+```
+
+The Git worktree containing the committed versions is:
+
+```text
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/star-sw-git-SL16d_embed_64b
+```
+
+The corresponding Git-worktree files have the same relative paths under that
+directory, and the README is:
+
+```text
+/gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/star-sw-git-SL16d_embed_64b/README_P16id_COMPATIBILITY.md
+```
+
 Detailed validation artifacts are under:
 
 ```text
 /gpfs01/star/pwg/droy1/STAR-Workspace/LocalSTAR/diagnostics_20260727
 ```
-
